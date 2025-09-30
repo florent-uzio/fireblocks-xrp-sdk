@@ -1,12 +1,8 @@
 // tests/services/TokenService.test.ts
-import { TokenService } from "../../src/services";
-import { ValidationError } from "../../src/errors/errors";
-import { isValidAddress } from "xrpl";
-import {
-  validateAmount,
-  validateDestinationTag,
-  validateMemos,
-} from "../../src/utils/utils";
+import { isValidAddress } from "xrpl"
+import { ValidationError } from "../../src/errors/errors"
+import { TokenService } from "../../src/services"
+import { validateAmount, validateDestinationTag, validateMemos } from "../../src/utils/utils"
 
 // Mocks
 jest.mock("xrpl", () => ({
@@ -28,27 +24,27 @@ jest.mock("xrpl", () => ({
     tfRequireAuth: 2,
     tfAllowXRP: 4,
   },
-}));
+}))
 
 jest.mock("../../src/utils/utils", () => ({
   ...jest.requireActual("../../src/utils/utils"),
   validateAmount: jest.fn(),
   validateDestinationTag: jest.fn(),
   validateMemos: jest.fn((memos) => memos),
-}));
+}))
 
-const mockIsValidAddress = isValidAddress as jest.Mock;
-const mockValidateAmount = validateAmount as jest.Mock;
-const mockValidateDestinationTag = validateDestinationTag as jest.Mock;
-const mockValidateMemos = validateMemos as jest.Mock;
+const mockIsValidAddress = isValidAddress as jest.Mock
+const mockValidateAmount = validateAmount as jest.Mock
+const mockValidateDestinationTag = validateDestinationTag as jest.Mock
+const mockValidateMemos = validateMemos as jest.Mock
 
 describe("TokenService", () => {
-  let service: TokenService;
+  let service: TokenService
 
   beforeEach(() => {
-    service = new TokenService();
-    jest.clearAllMocks();
-  });
+    service = new TokenService()
+    jest.clearAllMocks()
+  })
 
   // ---- createFungibleTokenPaymentTx ----
   describe("createFungibleTokenPaymentTx", () => {
@@ -66,12 +62,12 @@ describe("TokenService", () => {
       sendMax: { currency: "USD", issuer: "rIssuer", value: "101" },
       deliverMin: { currency: "USD", issuer: "rIssuer", value: "99" },
       paths: [],
-    };
+    }
 
     it("constructs payment tx with all valid inputs", () => {
-      mockIsValidAddress.mockReturnValue(true);
-      mockValidateAmount.mockReturnValue(undefined);
-      mockValidateMemos.mockReturnValue(baseArgs.memos);
+      mockIsValidAddress.mockReturnValue(true)
+      mockValidateAmount.mockReturnValue(undefined)
+      mockValidateMemos.mockReturnValue(baseArgs.memos)
 
       const tx = service.createFungibleTokenPaymentTx(
         baseArgs.address,
@@ -86,26 +82,26 @@ describe("TokenService", () => {
         baseArgs.invoiceId,
         baseArgs.sendMax,
         baseArgs.deliverMin,
-        baseArgs.paths
-      );
+        baseArgs.paths,
+      )
 
-      expect(tx.TransactionType).toBe("Payment");
-      expect(tx.Account).toBe(baseArgs.address);
-      expect(tx.Destination).toBe(baseArgs.destination);
-      expect(tx.Amount).toEqual(baseArgs.amount);
-      expect(tx.Fee).toBe(baseArgs.fee);
-      expect(tx.Sequence).toBe(baseArgs.sequence);
-      expect(tx.LastLedgerSequence).toBe(baseArgs.lastLedgerSequence);
-      expect(tx.Memos).toEqual(baseArgs.memos);
-      expect(tx.DestinationTag).toBe(baseArgs.destinationTag);
-      expect(tx.InvoiceID).toBe(baseArgs.invoiceId);
-      expect(tx.SendMax).toEqual(baseArgs.sendMax);
-      expect(tx.DeliverMin).toEqual(baseArgs.deliverMin);
-      expect(tx.Paths).toEqual(baseArgs.paths);
-    });
+      expect(tx.TransactionType).toBe("Payment")
+      expect(tx.Account).toBe(baseArgs.address)
+      expect(tx.Destination).toBe(baseArgs.destination)
+      expect(tx.Amount).toEqual(baseArgs.amount)
+      expect(tx.Fee).toBe(baseArgs.fee)
+      expect(tx.Sequence).toBe(baseArgs.sequence)
+      expect(tx.LastLedgerSequence).toBe(baseArgs.lastLedgerSequence)
+      expect(tx.Memos).toEqual(baseArgs.memos)
+      expect(tx.DestinationTag).toBe(baseArgs.destinationTag)
+      expect(tx.InvoiceID).toBe(baseArgs.invoiceId)
+      expect(tx.SendMax).toEqual(baseArgs.sendMax)
+      expect(tx.DeliverMin).toEqual(baseArgs.deliverMin)
+      expect(tx.Paths).toEqual(baseArgs.paths)
+    })
 
     it("throws ValidationError if destination address is invalid", () => {
-      mockIsValidAddress.mockReturnValue(false);
+      mockIsValidAddress.mockReturnValue(false)
       expect(() =>
         service.createFungibleTokenPaymentTx(
           baseArgs.address,
@@ -113,13 +109,13 @@ describe("TokenService", () => {
           baseArgs.amount,
           baseArgs.fee,
           baseArgs.sequence,
-          baseArgs.lastLedgerSequence
-        )
-      ).toThrow(ValidationError);
-    });
+          baseArgs.lastLedgerSequence,
+        ),
+      ).toThrow(ValidationError)
+    })
 
     it("throws ValidationError if amount is a string (not token)", () => {
-      mockIsValidAddress.mockReturnValue(true);
+      mockIsValidAddress.mockReturnValue(true)
       expect(() =>
         service.createFungibleTokenPaymentTx(
           baseArgs.address,
@@ -127,13 +123,13 @@ describe("TokenService", () => {
           "100" as any, // XRP payments not allowed
           baseArgs.fee,
           baseArgs.sequence,
-          baseArgs.lastLedgerSequence
-        )
-      ).toThrow(ValidationError);
-    });
+          baseArgs.lastLedgerSequence,
+        ),
+      ).toThrow(ValidationError)
+    })
 
     it("throws ValidationError for bad destinationTag", () => {
-      mockIsValidAddress.mockReturnValue(true);
+      mockIsValidAddress.mockReturnValue(true)
       expect(() =>
         service.createFungibleTokenPaymentTx(
           baseArgs.address,
@@ -144,9 +140,9 @@ describe("TokenService", () => {
           baseArgs.lastLedgerSequence,
           baseArgs.flags,
           baseArgs.memos,
-          -1
-        )
-      ).toThrow(ValidationError);
+          -1,
+        ),
+      ).toThrow(ValidationError)
 
       expect(() =>
         service.createFungibleTokenPaymentTx(
@@ -158,13 +154,13 @@ describe("TokenService", () => {
           baseArgs.lastLedgerSequence,
           baseArgs.flags,
           baseArgs.memos,
-          2 ** 32
-        )
-      ).toThrow(ValidationError);
-    });
+          2 ** 32,
+        ),
+      ).toThrow(ValidationError)
+    })
 
     it("throws ValidationError for bad invoiceId", () => {
-      mockIsValidAddress.mockReturnValue(true);
+      mockIsValidAddress.mockReturnValue(true)
       expect(() =>
         service.createFungibleTokenPaymentTx(
           baseArgs.address,
@@ -176,29 +172,29 @@ describe("TokenService", () => {
           baseArgs.flags,
           baseArgs.memos,
           undefined,
-          "bad-invoice-id"
-        )
-      ).toThrow(ValidationError);
-    });
+          "bad-invoice-id",
+        ),
+      ).toThrow(ValidationError)
+    })
 
     it("omits optional fields when not provided", () => {
-      mockIsValidAddress.mockReturnValue(true);
+      mockIsValidAddress.mockReturnValue(true)
       const tx = service.createFungibleTokenPaymentTx(
         baseArgs.address,
         baseArgs.destination,
         baseArgs.amount,
         baseArgs.fee,
         baseArgs.sequence,
-        baseArgs.lastLedgerSequence
-      );
-      expect(tx.SendMax).toBeUndefined();
-      expect(tx.DeliverMin).toBeUndefined();
-      expect(tx.InvoiceID).toBeUndefined();
-      expect(tx.Paths).toBeUndefined();
-      expect(tx.DestinationTag).toBeUndefined();
-      expect(tx.Memos).toBeUndefined();
-    });
-  });
+        baseArgs.lastLedgerSequence,
+      )
+      expect(tx.SendMax).toBeUndefined()
+      expect(tx.DeliverMin).toBeUndefined()
+      expect(tx.InvoiceID).toBeUndefined()
+      expect(tx.Paths).toBeUndefined()
+      expect(tx.DestinationTag).toBeUndefined()
+      expect(tx.Memos).toBeUndefined()
+    })
+  })
 
   // ---- createTrustSetTx ----
   describe("createTrustSetTx", () => {
@@ -212,12 +208,12 @@ describe("TokenService", () => {
       qualityIn: 5,
       qualityOut: 10,
       memos: [{ Memo: { MemoType: "foo", MemoData: "bar" } }],
-    };
+    }
 
     it("constructs trustset tx with all valid inputs", () => {
-      mockIsValidAddress.mockReturnValue(true);
-      mockValidateAmount.mockReturnValue(undefined);
-      mockValidateMemos.mockReturnValue(baseArgs.memos);
+      mockIsValidAddress.mockReturnValue(true)
+      mockValidateAmount.mockReturnValue(undefined)
+      mockValidateMemos.mockReturnValue(baseArgs.memos)
       const tx = service.createTrustSetTx(
         baseArgs.address,
         baseArgs.fee,
@@ -227,53 +223,53 @@ describe("TokenService", () => {
         baseArgs.flags,
         baseArgs.qualityIn,
         baseArgs.qualityOut,
-        baseArgs.memos
-      );
-      expect(tx.TransactionType).toBe("TrustSet");
-      expect(tx.Account).toBe(baseArgs.address);
-      expect(tx.Fee).toBe(baseArgs.fee);
-      expect(tx.Sequence).toBe(baseArgs.sequence);
-      expect(tx.LimitAmount).toEqual(baseArgs.limitAmount);
-      expect(tx.LastLedgerSequence).toBe(baseArgs.lastLedgerSequence);
-      expect(tx.Memos).toEqual(baseArgs.memos);
-      expect(tx.QualityIn).toBe(baseArgs.qualityIn);
-      expect(tx.QualityOut).toBe(baseArgs.qualityOut);
-    });
+        baseArgs.memos,
+      )
+      expect(tx.TransactionType).toBe("TrustSet")
+      expect(tx.Account).toBe(baseArgs.address)
+      expect(tx.Fee).toBe(baseArgs.fee)
+      expect(tx.Sequence).toBe(baseArgs.sequence)
+      expect(tx.LimitAmount).toEqual(baseArgs.limitAmount)
+      expect(tx.LastLedgerSequence).toBe(baseArgs.lastLedgerSequence)
+      expect(tx.Memos).toEqual(baseArgs.memos)
+      expect(tx.QualityIn).toBe(baseArgs.qualityIn)
+      expect(tx.QualityOut).toBe(baseArgs.qualityOut)
+    })
 
     it("throws ValidationError if limitAmount is invalid", () => {
-      mockIsValidAddress.mockReturnValue(true);
+      mockIsValidAddress.mockReturnValue(true)
       mockValidateAmount.mockImplementation(() => {
-        throw new ValidationError("InvalidAmount", "Bad limitAmount");
-      });
+        throw new ValidationError("InvalidAmount", "Bad limitAmount")
+      })
       expect(() =>
         service.createTrustSetTx(
           baseArgs.address,
           baseArgs.fee,
           baseArgs.sequence,
           baseArgs.limitAmount,
-          baseArgs.lastLedgerSequence
-        )
-      ).toThrow(ValidationError);
-    });
+          baseArgs.lastLedgerSequence,
+        ),
+      ).toThrow(ValidationError)
+    })
 
     it("omits optional fields when not provided", () => {
-      mockIsValidAddress.mockReturnValue(true);
-      mockValidateAmount.mockReturnValue(undefined);
+      mockIsValidAddress.mockReturnValue(true)
+      mockValidateAmount.mockReturnValue(undefined)
       const tx = service.createTrustSetTx(
         baseArgs.address,
         baseArgs.fee,
         baseArgs.sequence,
         baseArgs.limitAmount,
-        baseArgs.lastLedgerSequence
-      );
-      expect(tx.QualityIn).toBeUndefined();
-      expect(tx.QualityOut).toBeUndefined();
-      expect(tx.Memos).toBeUndefined();
-      expect(tx.Flags).toBeUndefined();
-    });
+        baseArgs.lastLedgerSequence,
+      )
+      expect(tx.QualityIn).toBeUndefined()
+      expect(tx.QualityOut).toBeUndefined()
+      expect(tx.Memos).toBeUndefined()
+      expect(tx.Flags).toBeUndefined()
+    })
 
     it("throws if tfSetNoRipple and tfClearNoRipple are both true", () => {
-      mockIsValidAddress.mockReturnValue(true);
+      mockIsValidAddress.mockReturnValue(true)
       expect(() =>
         service.createTrustSetTx(
           baseArgs.address,
@@ -281,13 +277,13 @@ describe("TokenService", () => {
           baseArgs.sequence,
           baseArgs.limitAmount,
           baseArgs.lastLedgerSequence,
-          { tfSetNoRipple: true, tfClearNoRipple: true }
-        )
-      ).toThrow("Cannot both set and clear NoRipple on same trust line.");
-    });
+          { tfSetNoRipple: true, tfClearNoRipple: true },
+        ),
+      ).toThrow("Cannot both set and clear NoRipple on same trust line.")
+    })
 
     it("throws if tfSetFreeze and tfClearFreeze are both true", () => {
-      mockIsValidAddress.mockReturnValue(true);
+      mockIsValidAddress.mockReturnValue(true)
       expect(() =>
         service.createTrustSetTx(
           baseArgs.address,
@@ -295,11 +291,11 @@ describe("TokenService", () => {
           baseArgs.sequence,
           baseArgs.limitAmount,
           baseArgs.lastLedgerSequence,
-          { tfSetFreeze: true, tfClearFreeze: true }
-        )
-      ).toThrow(ValidationError);
-    });
-  });
+          { tfSetFreeze: true, tfClearFreeze: true },
+        ),
+      ).toThrow(ValidationError)
+    })
+  })
 
   // ---- createAccountSetTx ----
   describe("createAccountSetTx", () => {
@@ -313,31 +309,29 @@ describe("TokenService", () => {
         tfFlags: { tfAllowXRP: true },
       },
       memos: [{ Memo: { MemoType: "foo", MemoData: "bar" } }],
-    };
+    }
 
     it("constructs accountset tx with all valid inputs", () => {
-      mockValidateMemos.mockReturnValue(baseArgs.memos);
+      mockValidateMemos.mockReturnValue(baseArgs.memos)
       const tx = service.createAccountSetTx(
         baseArgs.address,
         baseArgs.fee,
         baseArgs.sequence,
         baseArgs.lastLedgerSequence,
         baseArgs.configs,
-        baseArgs.memos
-      );
-      expect(tx.TransactionType).toBe("AccountSet");
-      expect(tx.Account).toBe(baseArgs.address);
-      expect(tx.Fee).toBe(baseArgs.fee);
-      expect(tx.Sequence).toBe(baseArgs.sequence);
-      expect(tx.LastLedgerSequence).toBe(baseArgs.lastLedgerSequence);
-      expect(tx.Memos).toEqual(baseArgs.memos);
-      expect(tx.SetFlag).toBeDefined();
-    });
+        baseArgs.memos,
+      )
+      expect(tx.TransactionType).toBe("AccountSet")
+      expect(tx.Account).toBe(baseArgs.address)
+      expect(tx.Fee).toBe(baseArgs.fee)
+      expect(tx.Sequence).toBe(baseArgs.sequence)
+      expect(tx.LastLedgerSequence).toBe(baseArgs.lastLedgerSequence)
+      expect(tx.Memos).toEqual(baseArgs.memos)
+      expect(tx.SetFlag).toBeDefined()
+    })
 
     it("builds AccountSet with all optional fields", () => {
-      mockValidateMemos.mockReturnValue([
-        { Memo: { MemoType: "a", MemoData: "b" } },
-      ]);
+      mockValidateMemos.mockReturnValue([{ Memo: { MemoType: "a", MemoData: "b" } }])
       const tx = service.createAccountSetTx(
         "rValidAddress",
         "15",
@@ -353,15 +347,15 @@ describe("TokenService", () => {
           emailHash: "a".repeat(32),
           messageKey: "02" + "A".repeat(64),
         },
-        [{ Memo: { MemoType: "a", MemoData: "b" } }]
-      );
-      expect(tx.TransactionType).toBe("AccountSet");
-      expect(tx.Domain).toBeDefined();
-      expect(tx.TransferRate).toBe(1500000000);
-      expect(tx.TickSize).toBe(10);
-      expect(tx.EmailHash).toBe("a".repeat(32));
-      expect(tx.MessageKey).toBe("02" + "A".repeat(64));
-    });
+        [{ Memo: { MemoType: "a", MemoData: "b" } }],
+      )
+      expect(tx.TransactionType).toBe("AccountSet")
+      expect(tx.Domain).toBeDefined()
+      expect(tx.TransferRate).toBe(1500000000)
+      expect(tx.TickSize).toBe(10)
+      expect(tx.EmailHash).toBe("a".repeat(32))
+      expect(tx.MessageKey).toBe("02" + "A".repeat(64))
+    })
 
     it("omits optional memos when not provided", () => {
       const tx = service.createAccountSetTx(
@@ -369,11 +363,11 @@ describe("TokenService", () => {
         baseArgs.fee,
         baseArgs.sequence,
         baseArgs.lastLedgerSequence,
-        baseArgs.configs
-      );
-      expect(tx.Memos).toBeUndefined();
-    });
-  });
+        baseArgs.configs,
+      )
+      expect(tx.Memos).toBeUndefined()
+    })
+  })
 
   // ---- createClawbackTx ----
   describe("createClawbackTx", () => {
@@ -384,56 +378,56 @@ describe("TokenService", () => {
       sequence: 13,
       lastLedgerSequence: 31,
       memos: [{ Memo: { MemoType: "foo", MemoData: "bar" } }],
-    };
+    }
 
     it("constructs clawback tx with all valid inputs", () => {
-      mockIsValidAddress.mockReturnValue(true);
-      mockValidateAmount.mockReturnValue(undefined);
-      mockValidateMemos.mockReturnValue(baseArgs.memos);
+      mockIsValidAddress.mockReturnValue(true)
+      mockValidateAmount.mockReturnValue(undefined)
+      mockValidateMemos.mockReturnValue(baseArgs.memos)
       const tx = service.createClawbackTx(
         baseArgs.address,
         baseArgs.amount,
         baseArgs.fee,
         baseArgs.sequence,
         baseArgs.lastLedgerSequence,
-        baseArgs.memos
-      );
-      expect(tx.TransactionType).toBe("Clawback");
-      expect(tx.Account).toBe(baseArgs.address);
-      expect(tx.Amount).toEqual(baseArgs.amount);
-      expect(tx.Fee).toBe(baseArgs.fee);
-      expect(tx.Sequence).toBe(baseArgs.sequence);
-      expect(tx.LastLedgerSequence).toBe(baseArgs.lastLedgerSequence);
-      expect(tx.Memos).toEqual(baseArgs.memos);
-    });
+        baseArgs.memos,
+      )
+      expect(tx.TransactionType).toBe("Clawback")
+      expect(tx.Account).toBe(baseArgs.address)
+      expect(tx.Amount).toEqual(baseArgs.amount)
+      expect(tx.Fee).toBe(baseArgs.fee)
+      expect(tx.Sequence).toBe(baseArgs.sequence)
+      expect(tx.LastLedgerSequence).toBe(baseArgs.lastLedgerSequence)
+      expect(tx.Memos).toEqual(baseArgs.memos)
+    })
 
     it("throws ValidationError if amount is invalid", () => {
-      mockIsValidAddress.mockReturnValue(true);
+      mockIsValidAddress.mockReturnValue(true)
       mockValidateAmount.mockImplementation(() => {
-        throw new ValidationError("InvalidAmount", "Bad clawback amount");
-      });
+        throw new ValidationError("InvalidAmount", "Bad clawback amount")
+      })
       expect(() =>
         service.createClawbackTx(
           baseArgs.address,
           baseArgs.amount,
           baseArgs.fee,
           baseArgs.sequence,
-          baseArgs.lastLedgerSequence
-        )
-      ).toThrow(ValidationError);
-    });
+          baseArgs.lastLedgerSequence,
+        ),
+      ).toThrow(ValidationError)
+    })
 
     it("omits optional memos when not provided", () => {
-      mockIsValidAddress.mockReturnValue(true);
-      mockValidateAmount.mockReturnValue(undefined);
+      mockIsValidAddress.mockReturnValue(true)
+      mockValidateAmount.mockReturnValue(undefined)
       const tx = service.createClawbackTx(
         baseArgs.address,
         baseArgs.amount,
         baseArgs.fee,
         baseArgs.sequence,
-        baseArgs.lastLedgerSequence
-      );
-      expect(tx.Memos).toBeUndefined();
-    });
-  });
-});
+        baseArgs.lastLedgerSequence,
+      )
+      expect(tx.Memos).toBeUndefined()
+    })
+  })
+})

@@ -1,2 +1,2 @@
-export * from "./token.routes";
-export * from "./dex.routes";
+export * from "./dex.routes.js"
+export * from "./token.routes.js"

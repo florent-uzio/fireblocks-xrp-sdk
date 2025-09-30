@@ -1,9 +1,9 @@
-import request from "supertest";
-import express from "express";
-import { configureDexRoutes } from "../../../src/api/routes/dex.routes";
-import { FbksXrpApiService } from "../../../src/api/ApiService";
-import { TransactionType } from "../../../src/pool/types";
-import { TxResponse, Transaction } from "xrpl";
+import express from "express"
+import request from "supertest"
+import { Transaction, TxResponse } from "xrpl"
+import { FbksXrpApiService } from "../../../src/api/ApiService"
+import { configureDexRoutes } from "../../../src/api/routes/dex.routes"
+import { TransactionType } from "../../../src/pool/types"
 
 // Silence logger output in tests
 jest.mock("../../../src/utils/logger", () => ({
@@ -11,19 +11,19 @@ jest.mock("../../../src/utils/logger", () => ({
     info: jest.fn(),
     error: jest.fn(),
   })),
-}));
+}))
 
-jest.mock("../../../src/api/ApiService");
+jest.mock("../../../src/api/ApiService")
 
 const mockApi = {
   executeTransaction: jest.fn(),
-};
+}
 
-const app = express();
-app.use(express.json());
-app.use("/", configureDexRoutes(mockApi as unknown as FbksXrpApiService));
+const app = express()
+app.use(express.json())
+app.use("/", configureDexRoutes(mockApi as unknown as FbksXrpApiService))
 
-const vaultAccountId = "vault123";
+const vaultAccountId = "vault123"
 const fakeXrpResponse: TxResponse<Transaction> = {
   id: "mocked-id",
   type: "submit",
@@ -32,12 +32,12 @@ const fakeXrpResponse: TxResponse<Transaction> = {
     meta: "",
     tx_json: {} as Transaction,
   },
-};
+}
 
 beforeEach(() => {
-  jest.clearAllMocks();
-  mockApi.executeTransaction.mockResolvedValue(fakeXrpResponse);
-});
+  jest.clearAllMocks()
+  mockApi.executeTransaction.mockResolvedValue(fakeXrpResponse)
+})
 
 const endpoints = [
   {
@@ -64,34 +64,30 @@ const endpoints = [
     url: "credentialDelete",
     type: TransactionType.CREDENTIAL_DELETE,
   },
-];
+]
 
 describe("DEX Routes", () => {
   for (const { url, type } of endpoints) {
     it(`calls executeTransaction for ${url}`, async () => {
-      const res = await request(app)
-        .post(`/api/dex/${url}/${vaultAccountId}`)
-        .send({ test: true });
+      const res = await request(app).post(`/api/dex/${url}/${vaultAccountId}`).send({ test: true })
 
-      expect(res.status).toBe(200);
-      expect(res.body).toEqual(fakeXrpResponse);
+      expect(res.status).toBe(200)
+      expect(res.body).toEqual(fakeXrpResponse)
       expect(mockApi.executeTransaction).toHaveBeenCalledWith({
         vaultAccountId,
         transactionType: type,
         params: { test: true },
-      });
-    });
+      })
+    })
 
     it(`returns 400 if vaultAccountId is missing for ${url}`, async () => {
-      const res = await request(app)
-        .post(`/api/dex/${url}`)
-        .send({ test: true });
+      const res = await request(app).post(`/api/dex/${url}`).send({ test: true })
 
-      expect(res.status).toBe(400);
+      expect(res.status).toBe(400)
       expect(res.body).toEqual({
         error: "Missing vault account ID",
         message: "Vault account Id is missing from the request URL",
-      });
-    });
+      })
+    })
   }
-});
+})

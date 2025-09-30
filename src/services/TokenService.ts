@@ -1,30 +1,26 @@
 import {
-  Amount,
-  Memo,
-  Payment,
-  AccountSet,
-  TrustSet,
-  IssuedCurrencyAmount,
-  Clawback,
-  PaymentFlags,
+  type AccountSet,
+  type Amount,
+  type Clawback,
+  type IssuedCurrencyAmount,
   isValidAddress,
-  Path,
-} from "xrpl";
-import {
-  IPaymentFlags,
-  ITrustSetFlags,
-  AccountSetConfig,
-} from "../config/types";
-import { TrustSetFlagValues } from "../utils/constants";
+  type Memo,
+  type Path,
+  type Payment,
+  PaymentFlags,
+  type TrustSet,
+} from "xrpl"
+import type { AccountSetConfig, IPaymentFlags, ITrustSetFlags } from "../config/types.js"
+import { ValidationError } from "../errors/errors.js"
+import { TrustSetFlagValues } from "../utils/constants.js"
 import {
   deriveAccountSetAsf,
   deriveAccountSetTf,
+  derivePaymentFlags,
   hexEncodeDomain,
   validateAmount,
-  derivePaymentFlags,
   validateMemos,
-} from "../utils/utils";
-import { ValidationError } from "../errors/errors";
+} from "../utils/utils.js"
 
 export class TokenService {
   /**
@@ -56,27 +52,27 @@ export class TokenService {
     invoiceId?: string,
     sendMax?: Amount,
     deliverMin?: Amount,
-    paths?: Path[]
+    paths?: Path[],
   ): Payment => {
     try {
-      const { tfPartialPayment } = PaymentFlags;
+      const { tfPartialPayment } = PaymentFlags
 
       // Validate destination
       if (!isValidAddress(destination)) {
         throw new ValidationError(
           "InvalidDestination",
-          `Invalid destination address: ${destination}`
-        );
+          `Invalid destination address: ${destination}`,
+        )
       }
       if (typeof amount === "string") {
         throw new ValidationError(
           "InvalidAmount",
-          "Should not use transferToken method for XRP payments"
-        );
+          "Should not use transferToken method for XRP payments",
+        )
       }
 
       // Validate Amount
-      validateAmount("Amount", amount);
+      validateAmount("Amount", amount)
 
       // Validate destinationTag
       if (destinationTag !== undefined) {
@@ -87,8 +83,8 @@ export class TokenService {
         ) {
           throw new ValidationError(
             "InvalidDestinationTag",
-            "DestinationTag must be an integer between 0 and 2^32–1."
-          );
+            "DestinationTag must be an integer between 0 and 2^32–1.",
+          )
         }
       }
 
@@ -97,37 +93,31 @@ export class TokenService {
         if (!/^[A-Fa-f0-9]{64}$/.test(invoiceId)) {
           throw new ValidationError(
             "InvalidInvoiceId",
-            "InvoiceID must be a 32-byte (64-hex) string."
-          );
+            "InvoiceID must be a 32-byte (64-hex) string.",
+          )
         }
       }
 
       // Validate memos
       if (memos !== undefined && !Array.isArray(memos)) {
-        throw new ValidationError(
-          "InvalidMemos",
-          "Memos must be an array of Memo objects."
-        );
+        throw new ValidationError("InvalidMemos", "Memos must be an array of Memo objects.")
       }
 
       // validate SendMax and DeliverMin if they are provided
-      if (sendMax !== undefined) validateAmount("SendMax", sendMax);
-      if (deliverMin !== undefined) validateAmount("DeliverMin", deliverMin);
+      if (sendMax !== undefined) validateAmount("SendMax", sendMax)
+      if (deliverMin !== undefined) validateAmount("DeliverMin", deliverMin)
 
       // Derive & validate flags if they are provided
-      const combinedFlags = flags ? derivePaymentFlags(flags) : undefined;
+      const combinedFlags = flags ? derivePaymentFlags(flags) : undefined
 
-      const wantsPartial = Boolean((combinedFlags ?? 0) & tfPartialPayment);
+      const wantsPartial = Boolean((combinedFlags ?? 0) & tfPartialPayment)
 
       // Ensure partial flag when using SendMax or DeliverMin
-      if (
-        !wantsPartial &&
-        (sendMax !== undefined || deliverMin !== undefined)
-      ) {
+      if (!wantsPartial && (sendMax !== undefined || deliverMin !== undefined)) {
         throw new ValidationError(
           "InvalidFlags",
-          "SendMax or DeliverMin requires the tfPartialPayment flag."
-        );
+          "SendMax or DeliverMin requires the tfPartialPayment flag.",
+        )
       }
 
       // Build payload
@@ -146,16 +136,16 @@ export class TokenService {
         ...(sendMax !== undefined && { SendMax: sendMax }),
         ...(deliverMin !== undefined && { DeliverMin: deliverMin }),
         ...(paths !== undefined && { Paths: paths }),
-      };
+      }
 
-      return tx;
+      return tx
     } catch (error: any) {
       if (error instanceof ValidationError) {
-        throw error;
+        throw error
       }
-      throw new Error(`Error creating a Payment transaction: ${error.message}`);
+      throw new Error(`Error creating a Payment transaction: ${error.message}`)
     }
-  };
+  }
 
   /**
    * TrustSet transaction payload creation method.
@@ -179,56 +169,51 @@ export class TokenService {
     flags?: ITrustSetFlags,
     qualityIn?: number,
     qualityOut?: number,
-    memos?: Memo[]
+    memos?: Memo[],
   ): TrustSet => {
     // Validate address
     if (!isValidAddress(address)) {
-      throw new ValidationError("InvalidHolder", `Invalid address: ${address}`);
+      throw new ValidationError("InvalidHolder", `Invalid address: ${address}`)
     }
 
-    validateAmount("LimitAmount", limitAmount);
+    validateAmount("LimitAmount", limitAmount)
 
     // Validate qualityIn / qualityOut if provided
     if (qualityIn !== undefined || qualityOut !== undefined) {
       const qualities: [string, number | undefined][] = [
         ["QualityIn", qualityIn],
         ["QualityOut", qualityOut],
-      ];
+      ]
       for (const [name, val] of qualities) {
         if (val !== undefined) {
           if (!Number.isInteger(val) || val <= 0 || val > 0xffffffff) {
             throw new ValidationError(
               "InvalidQuality",
-              `Invalid ${name}: must be an integer between 1 and 2^32-1.`
-            );
+              `Invalid ${name}: must be an integer between 1 and 2^32-1.`,
+            )
           }
         }
       }
     }
 
     // Flags → bitmask, with mutual-exclusion guards
-    let combinedFlags = 0;
+    let combinedFlags = 0
     if (flags) {
       // Can't both set and clear NoRipple
       if (flags.tfSetNoRipple && flags.tfClearNoRipple) {
-        throw new Error(
-          "Cannot both set and clear NoRipple on same trust line."
-        );
+        throw new Error("Cannot both set and clear NoRipple on same trust line.")
       }
       // Can't both set and clear Freeze
       if (flags.tfSetFreeze && flags.tfClearFreeze) {
         throw new ValidationError(
           "InvalidFlags",
-          "Cannot both set and clear Freeze on same trust line."
-        );
+          "Cannot both set and clear Freeze on same trust line.",
+        )
       }
 
-      for (const [key, on] of Object.entries(flags) as [
-        keyof ITrustSetFlags,
-        boolean
-      ][]) {
+      for (const [key, on] of Object.entries(flags) as [keyof ITrustSetFlags, boolean][]) {
         if (on) {
-          combinedFlags |= TrustSetFlagValues[key];
+          combinedFlags |= TrustSetFlagValues[key]
         }
       }
     }
@@ -245,10 +230,10 @@ export class TokenService {
       ...(qualityIn !== undefined && { QualityIn: qualityIn }),
       ...(qualityOut !== undefined && { QualityOut: qualityOut }),
       ...(memos && memos.length > 0 && { Memos: memos }),
-    };
+    }
 
-    return tx;
-  };
+    return tx
+  }
 
   /**
    * AccountSet payload creation function -> will derive the flags and other fields. if more then one SetFlag or ClearFlag is provided, it will throw an error.
@@ -267,45 +252,27 @@ export class TokenService {
     sequence: number,
     lastLedgerSequence: number,
     configs: AccountSetConfig,
-    memos?: Memo[]
+    memos?: Memo[],
   ): AccountSet => {
     // ASF flags → SetFlag / ClearFlag
-    const { SetFlag, ClearFlag } = deriveAccountSetAsf(
-      configs.setFlag,
-      configs.clearFlag
-    );
+    const { SetFlag, ClearFlag } = deriveAccountSetAsf(configs.setFlag, configs.clearFlag)
 
     // TF flags → Flags
-    const Flags = deriveAccountSetTf(configs.tfFlags);
+    const Flags = deriveAccountSetTf(configs.tfFlags)
 
     // Optional fields
-    const domain = configs.domain ? hexEncodeDomain(configs.domain) : undefined;
+    const domain = configs.domain ? hexEncodeDomain(configs.domain) : undefined
     if (
       configs.transferRate !== undefined &&
       (configs.transferRate < 1e9 || configs.transferRate > 2e9)
     ) {
-      throw new ValidationError(
-        "InvalidTransferRate",
-        "transferRate must be between 1e9 and 2e9"
-      );
+      throw new ValidationError("InvalidTransferRate", "transferRate must be between 1e9 and 2e9")
     }
-    if (
-      configs.tickSize !== undefined &&
-      (configs.tickSize < 3 || configs.tickSize > 15)
-    ) {
-      throw new ValidationError(
-        "InvalidTickSize",
-        "tickSize must be between 3 and 15"
-      );
+    if (configs.tickSize !== undefined && (configs.tickSize < 3 || configs.tickSize > 15)) {
+      throw new ValidationError("InvalidTickSize", "tickSize must be between 3 and 15")
     }
-    if (
-      configs.emailHash !== undefined &&
-      !/^[A-Fa-f0-9]{32}$/.test(configs.emailHash)
-    ) {
-      throw new ValidationError(
-        "InvalidEmailHash",
-        "emailHash must be 32 hex chars"
-      );
+    if (configs.emailHash !== undefined && !/^[A-Fa-f0-9]{32}$/.test(configs.emailHash)) {
+      throw new ValidationError("InvalidEmailHash", "emailHash must be 32 hex chars")
     }
     if (
       configs.messageKey !== undefined &&
@@ -313,12 +280,12 @@ export class TokenService {
     ) {
       throw new ValidationError(
         "InvalidMessageKey",
-        "messageKey must be 66 hex chars with valid prefix"
-      );
+        "messageKey must be 66 hex chars with valid prefix",
+      )
     }
 
     // Validate and process memos if provided
-    const validatedMemos = memos ? validateMemos(memos) : undefined;
+    const validatedMemos = memos ? validateMemos(memos) : undefined
 
     return {
       TransactionType: "AccountSet",
@@ -338,11 +305,9 @@ export class TokenService {
       ...(configs.messageKey !== undefined && {
         MessageKey: configs.messageKey,
       }),
-      ...(validatedMemos && validatedMemos.length > 0
-        ? { Memos: validatedMemos }
-        : {}),
-    };
-  };
+      ...(validatedMemos && validatedMemos.length > 0 ? { Memos: validatedMemos } : {}),
+    }
+  }
 
   /**
    * method to create a Clawback transaction payload
@@ -362,20 +327,17 @@ export class TokenService {
     fee: string,
     sequence: number,
     lastLedgerSequence: number,
-    memos?: Memo[]
+    memos?: Memo[],
   ): Clawback => {
     // Validate issuer
     if (!isValidAddress(amount.issuer)) {
-      throw new ValidationError(
-        "InvalidAddress",
-        `Invalid token holder address: ${amount.issuer}`
-      );
+      throw new ValidationError("InvalidAddress", `Invalid token holder address: ${amount.issuer}`)
     }
     // Validate and process memos if provided
-    const validatedMemos = memos ? validateMemos(memos) : undefined;
+    const validatedMemos = memos ? validateMemos(memos) : undefined
 
     // Validate Amount
-    validateAmount("amount", amount);
+    validateAmount("amount", amount)
 
     const tx: Clawback = {
       TransactionType: "Clawback",
@@ -384,10 +346,8 @@ export class TokenService {
       Fee: fee,
       LastLedgerSequence: lastLedgerSequence,
       Sequence: sequence,
-      ...(validatedMemos && validatedMemos.length > 0
-        ? { Memos: validatedMemos }
-        : {}),
-    };
-    return tx;
-  };
+      ...(validatedMemos && validatedMemos.length > 0 ? { Memos: validatedMemos } : {}),
+    }
+    return tx
+  }
 }

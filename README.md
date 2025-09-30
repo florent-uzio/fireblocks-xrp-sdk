@@ -152,27 +152,27 @@ docker-compose up --build
 Sample usage via direct SDK in Node.js (see `/examples` for more):
 
 ```ts
-import { readFileSync } from "fs";
-import { FbksXrpApiService } from "./src/api/ApiService";
-import { TransactionType } from "./src/pool/types";
-import { BasePath } from "@fireblocks/ts-sdk";
-import dotenv from "dotenv";
+import { readFileSync } from "fs"
+import { FbksXrpApiService } from "./src/api/ApiService"
+import { TransactionType } from "./src/pool/types"
+import { BasePath } from "@fireblocks/ts-sdk"
+import dotenv from "dotenv"
 
-dotenv.config();
+dotenv.config()
 
-(async () => {
-  const FIREBLOCKS_API_SECRET_PATH = "./fireblocks_secret.key";
+;(async () => {
+  const FIREBLOCKS_API_SECRET_PATH = "./fireblocks_secret.key"
 
   const apiSecret =
     readFileSync(FIREBLOCKS_API_SECRET_PATH, "utf8") ||
-    process.env.FIREBLOCKS_SECRET_KEY?.replace(/\\n/g, "\n");
+    process.env.FIREBLOCKS_SECRET_KEY?.replace(/\\n/g, "\n")
 
   const apiService = new FbksXrpApiService({
     apiKey: process.env.FIREBLOCKS_API_KEY || "",
     apiSecret,
     assetId: process.env.FIREBLOCKS_ASSET_ID || "XRP_TEST",
     basePath: (process.env.FIREBLOCKS_BASE_PATH as BasePath) || BasePath.US,
-  });
+  })
 
   const params = {
     sellAmount: "10",
@@ -185,26 +185,25 @@ dotenv.config();
       tfPassiveOffer: true,
       tfSellOffer: true,
     },
-    domainId:
-      "ABCDEF1234567890ABCDEF1234567890ABCDEF1234567890ABCDEF1234567890",
-  };
+    domainId: "ABCDEF1234567890ABCDEF1234567890ABCDEF1234567890ABCDEF1234567890",
+  }
 
   const opts: ExecuteTransactionOpts = {
     vaultAccountId: process.env.FIREBLOCKS_VAULT_ACCOUNT_ID || "",
     transactionType: TransactionType.OFFER_CREATE,
     params,
-  };
-
-  const res = await apiService.executeTransaction(opts);
-
-  if ("result" in res) {
-    console.log(`Tx submitted: ${res.result.hash}`);
-  } else {
-    console.log(`Transaction submitted with ID: ${res.id}`);
   }
 
-  await apiService.shutdown();
-})();
+  const res = await apiService.executeTransaction(opts)
+
+  if ("result" in res) {
+    console.log(`Tx submitted: ${res.result.hash}`)
+  } else {
+    console.log(`Transaction submitted with ID: ${res.id}`)
+  }
+
+  await apiService.shutdown()
+})()
 ```
 
 > See more SDK samples in `/examples/`.

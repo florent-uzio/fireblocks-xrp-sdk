@@ -1,13 +1,13 @@
+import { FbksXrpApiService } from "../../../src/api/ApiService"
 import {
-  offerCreate,
-  offerCancel,
-  crossCurrencyPayment,
-  credentialCreate,
   credentialAccept,
+  credentialCreate,
   credentialDelete,
-} from "../../../src/api/controllers";
-import { TransactionType } from "../../../src/pool/types";
-import { FbksXrpApiService } from "../../../src/api/ApiService";
+  crossCurrencyPayment,
+  offerCancel,
+  offerCreate,
+} from "../../../src/api/controllers"
+import { TransactionType } from "../../../src/pool/types"
 
 // Mock the logger to keep output clean during tests
 jest.mock("../../../src/utils/logger", () => ({
@@ -15,32 +15,32 @@ jest.mock("../../../src/utils/logger", () => ({
     info: jest.fn(),
     error: jest.fn(),
   })),
-}));
+}))
 
 describe("dex.controller", () => {
-  let mockApi: jest.Mocked<FbksXrpApiService>;
-  let req: any;
-  let res: any;
-  let next: jest.Mock;
+  let mockApi: jest.Mocked<FbksXrpApiService>
+  let req: any
+  let res: any
+  let next: jest.Mock
 
   beforeEach(() => {
     mockApi = {
       executeTransaction: jest.fn(),
-    } as unknown as jest.Mocked<FbksXrpApiService>;
+    } as unknown as jest.Mocked<FbksXrpApiService>
 
     req = {
       params: { vaultAccountId: "vault123" },
       body: { foo: "bar" },
-    };
+    }
 
     res = {
       status: jest.fn().mockReturnThis(),
       json: jest.fn(),
-    };
+    }
 
-    next = jest.fn();
-    jest.clearAllMocks();
-  });
+    next = jest.fn()
+    jest.clearAllMocks()
+  })
 
   const tests = [
     {
@@ -79,36 +79,36 @@ describe("dex.controller", () => {
       label: "credentialDelete",
       errorLabel: "CredentialDelete",
     },
-  ];
+  ]
 
   for (const { fn, type, label } of tests) {
     describe(label, () => {
       it(`should call api.executeTransaction with ${type} and return 200`, async () => {
-        const fakeResponse = { id: `${label}_id` };
-        mockApi.executeTransaction.mockResolvedValue(fakeResponse);
+        const fakeResponse = { id: `${label}_id` }
+        mockApi.executeTransaction.mockResolvedValue(fakeResponse)
 
-        await fn(req, res, next, mockApi);
+        await fn(req, res, next, mockApi)
 
         expect(mockApi.executeTransaction).toHaveBeenCalledWith({
           vaultAccountId: "vault123",
           transactionType: type,
           params: { foo: "bar" },
-        });
-        expect(res.status).toHaveBeenCalledWith(200);
-        expect(res.json).toHaveBeenCalledWith(fakeResponse);
-        expect(next).not.toHaveBeenCalled();
-      });
+        })
+        expect(res.status).toHaveBeenCalledWith(200)
+        expect(res.json).toHaveBeenCalledWith(fakeResponse)
+        expect(next).not.toHaveBeenCalled()
+      })
 
       it("should handle error and call next", async () => {
-        const error = new Error(`fail for ${label}`);
-        mockApi.executeTransaction.mockRejectedValue(error);
+        const error = new Error(`fail for ${label}`)
+        mockApi.executeTransaction.mockRejectedValue(error)
 
-        await fn(req, res, next, mockApi);
+        await fn(req, res, next, mockApi)
 
-        expect(next).toHaveBeenCalledWith(error);
-        expect(res.status).not.toHaveBeenCalled();
-        expect(res.json).not.toHaveBeenCalled();
-      });
-    });
+        expect(next).toHaveBeenCalledWith(error)
+        expect(res.status).not.toHaveBeenCalled()
+        expect(res.json).not.toHaveBeenCalled()
+      })
+    })
   }
-});
+})

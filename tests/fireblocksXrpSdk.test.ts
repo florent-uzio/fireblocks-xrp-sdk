@@ -1,13 +1,12 @@
-import { FireblocksXrpSdk, FireblocksConfig } from "../src/FireblocksXrpSdk";
-import { Fireblocks } from "@fireblocks/ts-sdk";
-import { XRPL_BURN_ADDRESS } from "../src/utils/constants";
+import { Fireblocks } from "@fireblocks/ts-sdk"
+import { FireblocksConfig, FireblocksXrpSdk } from "../src/FireblocksXrpSdk"
 
 jest.mock("dotenv", () => ({
   config: jest.fn(),
-}));
+}))
 
 jest.mock("xrpl", () => {
-  const actual = jest.requireActual("xrpl");
+  const actual = jest.requireActual("xrpl")
   return {
     ...actual,
     Client: jest.fn().mockImplementation(() => ({
@@ -24,8 +23,8 @@ jest.mock("xrpl", () => {
         result: { validated: true, tx_json: { hash: "mockhash" } },
       })),
     })),
-  };
-});
+  }
+})
 
 jest.mock("../src/services/SigningService", () => ({
   SigningService: jest.fn().mockImplementation(() => ({
@@ -33,7 +32,7 @@ jest.mock("../src/services/SigningService", () => ({
     signAsync: jest.fn(),
     waitForSignature: jest.fn().mockResolvedValue({ status: "completed" }),
   })),
-}));
+}))
 
 jest.mock("../src/services/TokenService", () => ({
   TokenService: jest.fn().mockImplementation(() => ({
@@ -42,7 +41,7 @@ jest.mock("../src/services/TokenService", () => ({
     createAccountSetTx: jest.fn(),
     createClawbackTx: jest.fn(),
   })),
-}));
+}))
 
 jest.mock("../src/services/DexService", () => ({
   DexService: jest.fn().mockImplementation(() => ({
@@ -50,7 +49,7 @@ jest.mock("../src/services/DexService", () => ({
     getOfferCancelUnsignedTx: jest.fn(),
     getCrossCurrencyPaymentUnsignedTx: jest.fn(),
   })),
-}));
+}))
 
 const fakeFireblocks = {
   transactions: {
@@ -70,9 +69,9 @@ const fakeFireblocks = {
       },
     }),
   },
-} as unknown as Fireblocks;
+} as unknown as Fireblocks
 
-FireblocksXrpSdk.createFireblocksInstance = jest.fn(() => fakeFireblocks);
+FireblocksXrpSdk.createFireblocksInstance = jest.fn(() => fakeFireblocks)
 
 describe("FireblocksXrpSdk", () => {
   const config: FireblocksConfig = {
@@ -80,83 +79,66 @@ describe("FireblocksXrpSdk", () => {
     apiSecret: "secret",
     vaultAccountId: "mainVault",
     assetId: "XRP_TEST",
-  };
+  }
 
   beforeEach(() => {
-    jest.clearAllMocks();
-  });
+    jest.clearAllMocks()
+  })
 
   describe("constructor", () => {
     it("initializes all services and fields", () => {
-      const sdk = new FireblocksXrpSdk(
-        fakeFireblocks,
-        config,
-        "pubKey",
-        "rAddress"
-      );
+      const sdk = new FireblocksXrpSdk(fakeFireblocks, config, "pubKey", "rAddress")
 
-      expect((sdk as any).fireblocks).toBe(fakeFireblocks);
-      expect((sdk as any).vaultAccountId).toBe("mainVault");
-      expect((sdk as any).assetId).toBe("XRP_TEST");
-      expect((sdk as any).signingService).toBeDefined();
-      expect((sdk as any).dexService).toBeDefined();
-      expect((sdk as any).tokenService).toBeDefined();
-    });
-  });
+      expect((sdk as any).fireblocks).toBe(fakeFireblocks)
+      expect((sdk as any).vaultAccountId).toBe("mainVault")
+      expect((sdk as any).assetId).toBe("XRP_TEST")
+      expect((sdk as any).signingService).toBeDefined()
+      expect((sdk as any).dexService).toBeDefined()
+      expect((sdk as any).tokenService).toBeDefined()
+    })
+  })
 
   describe("service delegation", () => {
-    let sdk: FireblocksXrpSdk;
+    let sdk: FireblocksXrpSdk
 
     beforeEach(() => {
-      sdk = new FireblocksXrpSdk(fakeFireblocks, config, "pubKey", "rAddress");
-    });
+      sdk = new FireblocksXrpSdk(fakeFireblocks, config, "pubKey", "rAddress")
+    })
 
     it("delegates to signingService.sign", () => {
-      const tx = { TransactionType: "Payment" };
-      const result = sdk.sign(tx as any, "pubKey");
-      expect(result).toEqual({ tx_blob: "blob", hash: "hash" });
-      expect((sdk as any).signingService.sign).toHaveBeenCalledWith(
-        tx,
-        "pubKey",
-        undefined
-      );
-    });
+      const tx = { TransactionType: "Payment" }
+      const result = sdk.sign(tx as any, "pubKey")
+      expect(result).toEqual({ tx_blob: "blob", hash: "hash" })
+      expect((sdk as any).signingService.sign).toHaveBeenCalledWith(tx, "pubKey", undefined)
+    })
 
     it("calls tokenService.createFungibleTokenPaymentTx", () => {
-      const spy = jest.spyOn(
-        (sdk as any).tokenService,
-        "createFungibleTokenPaymentTx"
-      );
-      (sdk as any).tokenService.createFungibleTokenPaymentTx("args");
-      expect(spy).toHaveBeenCalledWith("args");
-    });
+      const spy = jest.spyOn((sdk as any).tokenService, "createFungibleTokenPaymentTx")
+      ;(sdk as any).tokenService.createFungibleTokenPaymentTx("args")
+      expect(spy).toHaveBeenCalledWith("args")
+    })
 
     it("calls dexService.getOfferCreateUnsignedTx", () => {
-      const spy = jest.spyOn(
-        (sdk as any).dexService,
-        "getOfferCreateUnsignedTx"
-      );
-      (sdk as any).dexService.getOfferCreateUnsignedTx("args");
-      expect(spy).toHaveBeenCalledWith("args");
-    });
+      const spy = jest.spyOn((sdk as any).dexService, "getOfferCreateUnsignedTx")
+      ;(sdk as any).dexService.getOfferCreateUnsignedTx("args")
+      expect(spy).toHaveBeenCalledWith("args")
+    })
 
     it("calls tokenService.createFungibleTokenPaymentTx for burnToken with burn address", async () => {
-      const amount = { currency: "USD", issuer: "rIssuer", value: "5" };
-      const sdkInstance = sdk as any;
-      const burnTxMock = sdkInstance.tokenService.createFungibleTokenPaymentTx;
-      burnTxMock.mockReturnValue({ TransactionType: "Payment" });
+      const amount = { currency: "USD", issuer: "rIssuer", value: "5" }
+      const sdkInstance = sdk as any
+      const burnTxMock = sdkInstance.tokenService.createFungibleTokenPaymentTx
+      burnTxMock.mockReturnValue({ TransactionType: "Payment" })
       sdkInstance.getClientParams = jest.fn().mockResolvedValue({
         fee: "12",
         sequence: 1,
         lastLedgerSequence: 10000,
-      });
-      sdkInstance.signAndSubmitTx = jest.fn().mockResolvedValue({ hash: "h" });
+      })
+      sdkInstance.signAndSubmitTx = jest.fn().mockResolvedValue({ hash: "h" })
 
-      await sdk.burnToken({ amount });
+      await sdk.burnToken({ amount })
 
-      expect(
-        (sdk as any).tokenService.createFungibleTokenPaymentTx
-      ).toHaveBeenCalledWith(
+      expect((sdk as any).tokenService.createFungibleTokenPaymentTx).toHaveBeenCalledWith(
         sdk.address,
         "rrrrrrrrrrrrrrrrrrrrBZbvji",
         amount,
@@ -166,41 +148,35 @@ describe("FireblocksXrpSdk", () => {
         undefined,
         undefined,
         undefined,
-        undefined
-      );
-    });
-  });
+        undefined,
+      )
+    })
+  })
 
   describe("fetchXrpAccountInfo", () => {
     it("returns address and public key", async () => {
-      const info = await FireblocksXrpSdk.fetchXrpAccountInfo(
-        fakeFireblocks,
-        config
-      );
-      expect(info).toEqual({ address: "rAddress", publicKey: "PUBKEY" });
-    });
+      const info = await FireblocksXrpSdk.fetchXrpAccountInfo(fakeFireblocks, config)
+      expect(info).toEqual({ address: "rAddress", publicKey: "PUBKEY" })
+    })
 
     it("throws if address is not found", async () => {
-      (
-        fakeFireblocks.vaults
-          .getVaultAccountAssetAddressesPaginated as jest.Mock
+      ;(
+        fakeFireblocks.vaults.getVaultAccountAssetAddressesPaginated as jest.Mock
       ).mockResolvedValueOnce({
         data: { addresses: [] },
-      });
-      await expect(
-        FireblocksXrpSdk.fetchXrpAccountInfo(fakeFireblocks, config)
-      ).rejects.toThrow("XRP address not found");
-    });
+      })
+      await expect(FireblocksXrpSdk.fetchXrpAccountInfo(fakeFireblocks, config)).rejects.toThrow(
+        "XRP address not found",
+      )
+    })
 
     it("throws if public key is not returned", async () => {
-      (
-        fakeFireblocks.vaults.getPublicKeyInfoForAddress as jest.Mock
-      ).mockResolvedValueOnce({
+      ;(fakeFireblocks.vaults.getPublicKeyInfoForAddress as jest.Mock).mockResolvedValueOnce({
         data: {},
-      });
-      await expect(
-        FireblocksXrpSdk.fetchXrpAccountInfo(fakeFireblocks, config)
-      ).rejects.toThrow("Public key not found");
-    });
-  });
-});
+      })
+      await expect(FireblocksXrpSdk.fetchXrpAccountInfo(fakeFireblocks, config)).rejects.toThrow(
+        "Public key not found",
+      )
+    })
+  })
+})
