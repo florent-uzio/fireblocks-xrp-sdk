@@ -1,11 +1,11 @@
-import { DestinationTransferPeerPath } from "@fireblocks/ts-sdk";
-import { Amount, IssuedCurrencyAmount, Memo, Path } from "xrpl";
-import { TransactionType } from "../pool/types";
+import { type DestinationTransferPeerPath } from "@fireblocks/ts-sdk"
+import { type Amount, type IssuedCurrencyAmount, type Memo, type Path } from "xrpl"
+import { type TransactionType } from "../pool/types.js"
 
 /** Signed transaction placeholder (blob + hash) */
 export interface SignedTransaction {
-  tx_blob: string;
-  hash: string;
+  tx_blob: string
+  hash: string
 }
 
 /**
@@ -13,13 +13,13 @@ export interface SignedTransaction {
  */
 export interface IOfferCreateFlags {
   /** tfPassive */
-  tfPassiveOffer?: boolean;
+  tfPassiveOffer?: boolean
   /** tfImmediateOrCancel */
-  tfImmediateOrCancelOffer?: boolean;
+  tfImmediateOrCancelOffer?: boolean
   /** tfFillOrKill */
-  tfFillOrKillOffer?: boolean;
+  tfFillOrKillOffer?: boolean
   /** tfSell */
-  tfSellOffer?: boolean;
+  tfSellOffer?: boolean
 }
 
 /**
@@ -27,11 +27,11 @@ export interface IOfferCreateFlags {
  */
 export interface IPaymentFlags {
   /** tfNoRippleDirect */
-  tfNoRippleDirect?: boolean;
+  tfNoRippleDirect?: boolean
   /** tfPartialPayment */
-  tfPartialPayment?: boolean;
+  tfPartialPayment?: boolean
   /** tfLimitQuality */
-  tfLimitQuality?: boolean;
+  tfLimitQuality?: boolean
 }
 
 /**
@@ -39,39 +39,39 @@ export interface IPaymentFlags {
  */
 export interface ITrustSetFlags {
   /** Authorize the trust line (issuer only) */
-  tfSetfAuth?: boolean;
+  tfSetfAuth?: boolean
   /** Disable rippling for this line */
-  tfSetNoRipple?: boolean;
+  tfSetNoRipple?: boolean
   /** Enable rippling (clear NoRipple) */
-  tfClearNoRipple?: boolean;
+  tfClearNoRipple?: boolean
   /** Freeze this trust line */
-  tfSetFreeze?: boolean;
+  tfSetFreeze?: boolean
   /** Unfreeze (clear freeze) */
-  tfClearFreeze?: boolean;
+  tfClearFreeze?: boolean
 }
 
 /**
  * Flags for AccountSet → “ASF”
  */
 export interface AsfFlags {
-  asfRequireAuth?: boolean;
-  asfDefaultRipple?: boolean;
-  asfAllowTrustLineClawback?: boolean;
-  asfDisableMaster?: boolean;
-  asfRequireDestTag?: boolean;
-  asfDisallowXRP?: boolean;
+  asfRequireAuth?: boolean
+  asfDefaultRipple?: boolean
+  asfAllowTrustLineClawback?: boolean
+  asfDisableMaster?: boolean
+  asfRequireDestTag?: boolean
+  asfDisallowXRP?: boolean
 }
 
 /**
  * Flags for AccountSet → “TF” (Bitmask).
  */
 export interface TfFlags {
-  tfRequireDestTag?: boolean;
-  tfOptionalDestTag?: boolean;
-  tfRequireAuth?: boolean;
-  tfOptionalAuth?: boolean;
-  tfDisallowXRP?: boolean;
-  tfAllowXRP?: boolean;
+  tfRequireDestTag?: boolean
+  tfOptionalDestTag?: boolean
+  tfRequireAuth?: boolean
+  tfOptionalAuth?: boolean
+  tfDisallowXRP?: boolean
+  tfAllowXRP?: boolean
 }
 
 /**
@@ -79,19 +79,19 @@ export interface TfFlags {
  */
 export interface AccountSetConfig {
   /** At most one ASF boolean per transaction */
-  setFlag?: AsfFlags;
+  setFlag?: AsfFlags
   /** At most one ASF boolean per transaction to clear */
-  clearFlag?: AsfFlags;
+  clearFlag?: AsfFlags
 
   /** Zero or more TF flags (they get OR’d into Flags) */
-  tfFlags?: TfFlags;
+  tfFlags?: TfFlags
 
   // Other optional fields for AccountSet:
-  domain?: string; // e.g. “example.com” (hex-encoded before sending)
-  transferRate?: number; // 1e9..2e9
-  tickSize?: number; // 3-15
-  emailHash?: string; // 32-hex chars
-  messageKey?: string; // 66-hex, “02|03|ED…” prefixed
+  domain?: string // e.g. “example.com” (hex-encoded before sending)
+  transferRate?: number // 1e9..2e9
+  tickSize?: number // 3-15
+  emailHash?: string // 32-hex chars
+  messageKey?: string // 66-hex, “02|03|ED…” prefixed
 }
 
 export interface AccountSetOpts {
@@ -99,10 +99,10 @@ export interface AccountSetOpts {
    * Full AccountSet configuration. Any combination of ASF, TF flags, and
    * optional fields (domain, transferRate, tickSize, emailHash, messageKey).
    */
-  configs: AccountSetConfig;
+  configs: AccountSetConfig
 
   /** Optional memos to attach to the AccountSet transaction. */
-  memos?: Memo[];
+  memos?: Memo[]
 }
 
 /**
@@ -117,19 +117,19 @@ export interface AccountSetOpts {
  */
 export interface TrustSetOpts {
   /** How much of the IOU you’re willing to trust (or modify). */
-  limitAmount: IssuedCurrencyAmount;
+  limitAmount: IssuedCurrencyAmount
 
   /** Optional flags: e.g. tfSetNoRipple, tfSetFreeze, tfSetfAuth, etc. */
-  flags?: ITrustSetFlags;
+  flags?: ITrustSetFlags
 
   /** Optional integer 1..2^32-1. */
-  qualityIn?: number;
+  qualityIn?: number
 
   /** Optional integer 1..2^32-1. */
-  qualityOut?: number;
+  qualityOut?: number
 
   /** Optional memos to attach. */
-  memos?: Memo[];
+  memos?: Memo[]
 }
 
 /**
@@ -137,9 +137,9 @@ export interface TrustSetOpts {
  *  • memos, invoiceId, destinationTag often re-appear.
  */
 interface BasePaymentOpts {
-  memos?: Memo[];
-  invoiceId?: string;
-  destinationTag?: number;
+  memos?: Memo[]
+  invoiceId?: string
+  destinationTag?: number
 }
 
 /**
@@ -149,11 +149,11 @@ interface BasePaymentOpts {
  *  • optional flags, memos, tags, invoice, sendMax, deliverMin
  */
 export interface TokenTransferOpts extends BasePaymentOpts {
-  destination: string;
-  amount: Amount;
-  flags?: IPaymentFlags;
-  sendMax?: Amount;
-  deliverMin?: Amount;
+  destination: string
+  amount: Amount
+  flags?: IPaymentFlags
+  sendMax?: Amount
+  deliverMin?: Amount
 }
 
 /**
@@ -163,17 +163,17 @@ export interface TokenTransferOpts extends BasePaymentOpts {
  * • optional note (string) to attach to the Fireblocks transaction
  */
 export interface XrpTransferOpts {
-  destination: DestinationTransferPeerPath;
-  amount: string;
-  note?: string;
+  destination: DestinationTransferPeerPath
+  amount: string
+  note?: string
 }
 /**
  * Cross-currency (DEX) payment extends a regular TokenTransfer,
  * but requires sendMax and may include explicit paths.
  */
 export interface CrossCurrencyPaymentOpts extends TokenTransferOpts {
-  sendMax: Amount;
-  paths?: Path[];
+  sendMax: Amount
+  paths?: Path[]
 }
 
 /**
@@ -182,12 +182,12 @@ export interface CrossCurrencyPaymentOpts extends TokenTransferOpts {
  *  • optional domainId, expiration, flags, memos.
  */
 export interface OfferCreateOpts {
-  sellAmount: Amount;
-  buyAmount: Amount;
-  domainId?: string;
-  expiration?: number;
-  flags?: IOfferCreateFlags;
-  memos?: Memo[];
+  sellAmount: Amount
+  buyAmount: Amount
+  domainId?: string
+  expiration?: number
+  flags?: IOfferCreateFlags
+  memos?: Memo[]
 }
 
 /**
@@ -195,41 +195,41 @@ export interface OfferCreateOpts {
  *  • Just the sequence number of the open offer + optional memos.
  */
 export interface OfferCancelOpts {
-  offerSequence: number;
-  memos?: Memo[];
+  offerSequence: number
+  memos?: Memo[]
 }
 
 export interface CredentialCreateOpts {
-  subject: string;
-  credentialType: string;
-  expiration?: number;
-  uri?: string;
-  flags?: number;
-  memos?: Memo[];
+  subject: string
+  credentialType: string
+  expiration?: number
+  uri?: string
+  flags?: number
+  memos?: Memo[]
 }
 
 export interface CredentialAcceptOpts {
-  issuer: string;
-  credentialType: string;
-  flags?: number;
-  memos?: Memo[];
+  issuer: string
+  credentialType: string
+  flags?: number
+  memos?: Memo[]
 }
 
 export interface CredentialDeleteOpts {
-  credentialType: string;
-  issuer?: string;
-  subject?: string;
-  flags?: number;
-  memos?: Memo[];
+  credentialType: string
+  issuer?: string
+  subject?: string
+  flags?: number
+  memos?: Memo[]
 }
 
 /**
  * Convenience shape for network parameters (fee, sequence, TTL).
  */
 export interface NetworkParams {
-  fee: string;
-  sequence: number;
-  lastLedgerSequence: number;
+  fee: string
+  sequence: number
+  lastLedgerSequence: number
 }
 
 /**
@@ -237,8 +237,8 @@ export interface NetworkParams {
  *  • amount must be an IssuedCurrencyAmount
  */
 export interface BurnTokenOpts extends BasePaymentOpts {
-  amount: IssuedCurrencyAmount;
-  flags?: IPaymentFlags;
+  amount: IssuedCurrencyAmount
+  flags?: IPaymentFlags
 }
 
 /**
@@ -247,9 +247,9 @@ export interface BurnTokenOpts extends BasePaymentOpts {
  *  • optional memos, invoiceId, destinationTag
  */
 export interface ClawbackOpts extends BasePaymentOpts {
-  holder: string;
-  currency: string;
-  value: string;
+  holder: string
+  currency: string
+  value: string
 }
 
 /**
@@ -258,14 +258,14 @@ export interface ClawbackOpts extends BasePaymentOpts {
  *  • optional memos, invoiceId, destinationTag
  */
 export interface FreezeTokenOpts extends BasePaymentOpts {
-  holder: string;
-  currency: string;
-  freeze: boolean;
+  holder: string
+  currency: string
+  freeze: boolean
 }
 
 export interface ExecuteTransactionOpts {
-  vaultAccountId: string;
-  transactionType: TransactionType;
+  vaultAccountId: string
+  transactionType: TransactionType
   params:
     | OfferCreateOpts
     | OfferCancelOpts
@@ -280,5 +280,5 @@ export interface ExecuteTransactionOpts {
     | BurnTokenOpts
     | FreezeTokenOpts
     | ClawbackOpts
-    | XrpTransferOpts;
+    | XrpTransferOpts
 }

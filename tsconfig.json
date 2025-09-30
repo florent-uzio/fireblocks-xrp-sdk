@@ -1,23 +1,29 @@
 {
   "compilerOptions": {
-    "declaration": true,
-    "declarationMap": true,
+    /* Base Options: */
+    "allowJs": true,
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
-    "module": "commonjs",
-    "outDir": "./dist",
-    "rootDir": "./src",
+    "isolatedModules": true,
+    "moduleDetection": "force",
+    "resolveJsonModule": true,
     "skipLibCheck": true,
-    "sourceMap": true,
-    "strict": false,
-    "target": "ES2020"
+    "target": "es2024",
+    "verbatimModuleSyntax": true,
+
+    /* Strictness */
+    "noImplicitOverride": true,
+    "noUncheckedIndexedAccess": true,
+    "strict": true,
+
+    /* If transpiling with TypeScript: */
+    "declaration": true,
+    "declarationMap": true,
+    "module": "NodeNext",
+    "outDir": "dist",
+    "rootDir": "src",
+    "sourceMap": true
   },
-  "include": [
-    "src/**/*",
-    "examples/FireblocksXrpAdapter.service.ts",
-    "src/FireblocksXrpSdk.ts",
-    "examples/errors",
-    "docs"
-  ],
+  "include": ["src/**/*"],
   "exclude": ["node_modules", "**/*.spec.ts"]
 }

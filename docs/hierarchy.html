@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!doctype html>
 <html class="default" lang="en" data-base="./">
   <head>
     <meta charset="utf-8" />
@@ -16,29 +16,19 @@
   </head>
   <body>
     <script>
-      document.documentElement.dataset.theme =
-        localStorage.getItem("tsd-theme") || "os";
-      document.body.style.display = "none";
+      document.documentElement.dataset.theme = localStorage.getItem("tsd-theme") || "os"
+      document.body.style.display = "none"
       setTimeout(
-        () =>
-          window.app
-            ? app.showPage()
-            : document.body.style.removeProperty("display"),
-        500
-      );
+        () => (window.app ? app.showPage() : document.body.style.removeProperty("display")),
+        500,
+      )
     </script>
     <header class="tsd-page-toolbar">
       <div class="tsd-toolbar-contents container">
         <a href="index.html" class="title">Fireblocks XRP SDK - v1.1.0</a>
         <div id="tsd-toolbar-links"></div>
         <button id="tsd-search-trigger" class="tsd-widget" aria-label="Search">
-          <svg
-            width="16"
-            height="16"
-            viewBox="0 0 16 16"
-            fill="none"
-            aria-hidden="true"
-          >
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
             <use href="assets/icons.svg#icon-search"></use>
           </svg>
         </button>
@@ -65,13 +55,7 @@
           id="tsd-toolbar-menu-trigger"
           data-toggle="menu"
           aria-label="Menu"
-          ><svg
-            width="16"
-            height="16"
-            viewBox="0 0 16 16"
-            fill="none"
-            aria-hidden="true"
-          >
+          ><svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
             <use href="assets/icons.svg#icon-menu"></use></svg
         ></a>
       </div>
@@ -83,22 +67,14 @@
         <ul class="tsd-full-hierarchy">
           <li data-refl="96" id="TokenTransferOpts">
             <a href="interfaces/TokenTransferOpts.html"
-              ><svg
-                class="tsd-kind-icon"
-                viewBox="0 0 24 24"
-                aria-label="Interface"
-              >
+              ><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Interface">
                 <use href="assets/icons.svg#icon-256"></use></svg
               >TokenTransferOpts</a
             >
             <ul>
               <li data-refl="105" id="CrossCurrencyPaymentOpts">
                 <a href="interfaces/CrossCurrencyPaymentOpts.html"
-                  ><svg
-                    class="tsd-kind-icon"
-                    viewBox="0 0 24 24"
-                    aria-label="Interface"
-                  >
+                  ><svg class="tsd-kind-icon" viewBox="0 0 24 24" aria-label="Interface">
                     <use href="assets/icons.svg#icon-256"></use></svg
                   >CrossCurrencyPaymentOpts</a
                 >
@@ -112,13 +88,7 @@
           <div class="tsd-navigation settings">
             <details class="tsd-accordion">
               <summary class="tsd-accordion-summary">
-                <svg
-                  width="20"
-                  height="20"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  aria-hidden="true"
-                >
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
                   <use href="assets/icons.svg#icon-chevronDown"></use>
                 </svg>
                 <h3>Settings</h3>
@@ -129,11 +99,7 @@
                   <ul id="tsd-filter-options">
                     <li class="tsd-filter-item">
                       <label class="tsd-filter-input"
-                        ><input
-                          type="checkbox"
-                          id="tsd-filter-protected"
-                          name="protected"
-                        /><svg
+                        ><input type="checkbox" id="tsd-filter-protected" name="protected" /><svg
                           width="32"
                           height="32"
                           viewBox="0 0 32 32"
@@ -166,12 +132,7 @@
                           id="tsd-filter-inherited"
                           name="inherited"
                           checked
-                        /><svg
-                          width="32"
-                          height="32"
-                          viewBox="0 0 32 32"
-                          aria-hidden="true"
-                        >
+                        /><svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true">
                           <rect
                             class="tsd-checkbox-background"
                             width="30"
@@ -194,11 +155,7 @@
                     </li>
                     <li class="tsd-filter-item">
                       <label class="tsd-filter-input"
-                        ><input
-                          type="checkbox"
-                          id="tsd-filter-external"
-                          name="external"
-                        /><svg
+                        ><input type="checkbox" id="tsd-filter-external" name="external" /><svg
                           width="32"
                           height="32"
                           viewBox="0 0 32 32"

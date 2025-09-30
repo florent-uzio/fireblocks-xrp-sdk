@@ -10,16 +10,16 @@ export enum LogLevel {
 }
 
 export class Logger {
-  private static level: LogLevel = LogLevel.INFO;
-  private static logPrefix = "[FBKS-XRP-SDK]";
-  private context: string;
+  private static level: LogLevel = LogLevel.INFO
+  private static logPrefix = "[FBKS-XRP-SDK]"
+  private context: string
 
   /**
    * Create a new logger instance
    * @param context The context for this logger (e.g. class name)
    */
   constructor(context: string) {
-    this.context = context;
+    this.context = context
   }
 
   /**
@@ -27,24 +27,24 @@ export class Logger {
    * @param level Log level
    */
   static setLogLevel = (level: LogLevel): void => {
-    Logger.level = level;
-  };
+    Logger.level = level
+  }
 
   /**
    * Get current log level
    * @returns Current log level
    */
   static getLogLevel = (): LogLevel => {
-    return Logger.level;
-  };
+    return Logger.level
+  }
 
   /**
    * Set prefix for all log messages
    * @param prefix Log prefix
    */
   static setLogPrefix = (prefix: string): void => {
-    Logger.logPrefix = prefix;
-  };
+    Logger.logPrefix = prefix
+  }
 
   /**
    * Log a debug message
@@ -53,12 +53,9 @@ export class Logger {
    */
   debug = (message: string, ...args: any[]): void => {
     if (Logger.level <= LogLevel.DEBUG) {
-      console.log(
-        `${Logger.logPrefix} [DEBUG] [${this.context}] ${message}`,
-        ...args
-      );
+      console.log(`${Logger.logPrefix} [DEBUG] [${this.context}] ${message}`, ...args)
     }
-  };
+  }
 
   /**
    * Log an info message
@@ -67,12 +64,9 @@ export class Logger {
    */
   info = (message: string, ...args: any[]): void => {
     if (Logger.level <= LogLevel.INFO) {
-      console.log(
-        `${Logger.logPrefix} [INFO] [${this.context}] ${message}`,
-        ...args
-      );
+      console.log(`${Logger.logPrefix} [INFO] [${this.context}] ${message}`, ...args)
     }
-  };
+  }
 
   /**
    * Log a warning message
@@ -81,12 +75,9 @@ export class Logger {
    */
   warn = (message: string, ...args: any[]): void => {
     if (Logger.level <= LogLevel.WARN) {
-      console.warn(
-        `${Logger.logPrefix} [WARN] [${this.context}] ${message}`,
-        ...args
-      );
+      console.warn(`${Logger.logPrefix} [WARN] [${this.context}] ${message}`, ...args)
     }
-  };
+  }
 
   /**
    * Log an error message
@@ -95,12 +86,9 @@ export class Logger {
    */
   error = (message: string, ...args: any[]): void => {
     if (Logger.level <= LogLevel.ERROR) {
-      console.error(
-        `${Logger.logPrefix} [ERROR] [${this.context}] ${message}`,
-        ...args
-      );
+      console.error(`${Logger.logPrefix} [ERROR] [${this.context}] ${message}`, ...args)
     }
-  };
+  }
 
   /**
    * Create a child logger with a subcontext
@@ -108,28 +96,28 @@ export class Logger {
    * @returns Child logger instance
    */
   createChild = (subContext: string): Logger => {
-    return new Logger(`${this.context}:${subContext}`);
-  };
+    return new Logger(`${this.context}:${subContext}`)
+  }
 }
 // Set log level from environment variable if available
 /* istanbul ignore next */
 if (typeof process !== "undefined" && process.env.SDK_LOG_LEVEL) {
-  const envLevel = process.env.SDK_LOG_LEVEL.toUpperCase() || "INFO";
+  const envLevel = process.env.SDK_LOG_LEVEL.toUpperCase() || "INFO"
   switch (envLevel) {
     case "DEBUG":
-      Logger.setLogLevel(LogLevel.DEBUG);
-      break;
+      Logger.setLogLevel(LogLevel.DEBUG)
+      break
     case "INFO":
-      Logger.setLogLevel(LogLevel.INFO);
-      break;
+      Logger.setLogLevel(LogLevel.INFO)
+      break
     case "WARN":
-      Logger.setLogLevel(LogLevel.WARN);
-      break;
+      Logger.setLogLevel(LogLevel.WARN)
+      break
     case "ERROR":
-      Logger.setLogLevel(LogLevel.ERROR);
-      break;
+      Logger.setLogLevel(LogLevel.ERROR)
+      break
     case "NONE":
-      Logger.setLogLevel(LogLevel.NONE);
-      break;
+      Logger.setLogLevel(LogLevel.NONE)
+      break
   }
 }

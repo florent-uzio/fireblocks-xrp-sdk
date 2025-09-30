@@ -1,14 +1,13 @@
-import { Router, Request, Response, NextFunction } from "express";
-import * as controllers from "../controllers";
-import { FbksXrpApiService } from "../ApiService";
-import { requireBody, validateVaultAccount } from "../middleware";
-import { Logger } from "../../utils/logger";
-import { log } from "console";
+import { type NextFunction, type Request, type Response, Router } from "express"
+import { Logger } from "../../utils/logger.js"
+import { FbksXrpApiService } from "../ApiService.js"
+import * as controllers from "../controllers/index.js"
+import { requireBody, validateVaultAccount } from "../middleware.js"
 
-const logger = new Logger("token-routes");
+const logger = new Logger("token-routes")
 
 export const configureTokenRoutes = (api: FbksXrpApiService): Router => {
-  const router = Router();
+  const router = Router()
 
   const tokenRoutes = [
     { path: "tokenTransfer", handler: controllers.tokenTransfer },
@@ -18,7 +17,7 @@ export const configureTokenRoutes = (api: FbksXrpApiService): Router => {
     { path: "freezeToken", handler: controllers.freezeToken },
     { path: "trustSet", handler: controllers.trustSet },
     { path: "xrpTransfer", handler: controllers.xrpTransfer },
-  ];
+  ]
 
   for (const { path, handler } of tokenRoutes) {
     router.post(
@@ -27,21 +26,21 @@ export const configureTokenRoutes = (api: FbksXrpApiService): Router => {
       requireBody,
       async (req: Request, res: Response, next: NextFunction) => {
         try {
-          await handler(req, res, next, api);
+          await handler(req, res, next, api)
         } catch (err) {
-          logger.error(`Error in ${path} request:`, err);
-          next(err);
+          logger.error(`Error in ${path} request:`, err)
+          next(err)
         }
-      }
-    );
+      },
+    )
     router.post(`/api/token/${path}`, (req: Request, res: Response) => {
-      logger.error(`Missing vault account ID for ${path} request`);
+      logger.error(`Missing vault account ID for ${path} request`)
       res.status(400).json({
         error: "Missing vault account ID",
         message: "Vault account Id is missing from the request URL",
-      });
-    });
+      })
+    })
   }
 
-  return router;
-};
+  return router
+}

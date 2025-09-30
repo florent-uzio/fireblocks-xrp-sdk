@@ -1,26 +1,26 @@
-import { FireblocksXrpSdk } from "../FireblocksXrpSdk";
-import { BasePath } from "@fireblocks/ts-sdk";
+import { BasePath } from "@fireblocks/ts-sdk"
+import { FireblocksXrpSdk } from "../FireblocksXrpSdk.js"
 
 export interface PoolConfig {
-  maxPoolSize: number;
-  idleTimeoutMs: number;
-  cleanupIntervalMs: number;
-  connectionTimeoutMs: number;
-  retryAttempts: number;
+  maxPoolSize: number
+  idleTimeoutMs: number
+  cleanupIntervalMs: number
+  connectionTimeoutMs: number
+  retryAttempts: number
 }
 
 export interface SdkPoolItem {
-  sdk: FireblocksXrpSdk;
-  lastUsed: Date;
-  isInUse: boolean;
+  sdk: FireblocksXrpSdk
+  lastUsed: Date
+  isInUse: boolean
 }
 
 export interface ApiServiceConfig {
-  apiKey: string;
-  apiSecret: string;
-  assetId: string;
-  basePath: BasePath | string;
-  poolConfig?: Partial<PoolConfig>;
+  apiKey: string
+  apiSecret: string
+  assetId: string
+  basePath: BasePath | string
+  poolConfig?: Partial<PoolConfig>
 }
 
 export enum TransactionType {
@@ -40,8 +40,8 @@ export enum TransactionType {
 }
 
 export interface SdkManagerMetrics {
-  totalInstances: number;
-  activeInstances: number;
-  idleInstances: number;
-  instancesByVaultAccount: Record<string, boolean>;
+  totalInstances: number
+  activeInstances: number
+  idleInstances: number
+  instancesByVaultAccount: Record<string, boolean>
 }

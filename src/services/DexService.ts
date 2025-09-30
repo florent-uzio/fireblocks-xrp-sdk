@@ -1,25 +1,25 @@
-import {
-  OfferCreate,
+import type {
   Amount,
+  CredentialAccept,
+  CredentialCreate,
+  CredentialDelete,
   Memo,
   OfferCancel,
-  Payment,
+  OfferCreate,
   Path,
-  CredentialCreate,
-  isValidAddress,
-  CredentialAccept,
-  CredentialDelete,
-} from "xrpl";
-import { IOfferCreateFlags, IPaymentFlags } from "../config/types";
+  Payment,
+} from "xrpl"
+import { isValidAddress } from "xrpl"
+import type { IOfferCreateFlags, IPaymentFlags } from "../config/types.js"
+import { ValidationError } from "../errors/errors.js"
+import { HEX_REGEX } from "../utils/constants.js"
 import {
   deriveOfferCreateFlags,
   derivePaymentFlags,
   validateAmount,
-  validateMemos,
   validateHash256,
-} from "../utils/utils";
-import { ValidationError } from "../errors/errors";
-import { HEX_REGEX } from "../utils/constants";
+  validateMemos,
+} from "../utils/utils.js"
 
 /**
  * Service class for interacting with the XRPL Decentralized Exchange (DEX)
@@ -50,40 +50,31 @@ export class DexService {
     domainId?: string,
     expiration?: number,
     flags?: IOfferCreateFlags,
-    memos?: Memo[]
+    memos?: Memo[],
   ): OfferCreate => {
     try {
       // Validate user-provided amounts
-      validateAmount("sellAmount", sellAmount);
-      validateAmount("buyAmount", buyAmount);
+      validateAmount("sellAmount", sellAmount)
+      validateAmount("buyAmount", buyAmount)
 
       // Validate domainId if provided
       if (domainId !== undefined) {
-        validateHash256("domainId", domainId);
+        validateHash256("domainId", domainId)
       }
       // Validate expiration if provided
-      if (
-        expiration !== undefined &&
-        (!Number.isInteger(expiration) || expiration < 0)
-      ) {
-        throw new ValidationError(
-          "InvalidExpiration",
-          "Expiration must be a non-negative integer"
-        );
+      if (expiration !== undefined && (!Number.isInteger(expiration) || expiration < 0)) {
+        throw new ValidationError("InvalidExpiration", "Expiration must be a non-negative integer")
       }
 
       // Validate memos if provided
-      const validatedMemos = memos ? validateMemos(memos) : undefined;
+      const validatedMemos = memos ? validateMemos(memos) : undefined
 
       // Derive flags bitmask
-      let combinedFlags: number | undefined;
+      let combinedFlags: number | undefined
       try {
-        combinedFlags = flags ? deriveOfferCreateFlags(flags) : undefined;
+        combinedFlags = flags ? deriveOfferCreateFlags(flags) : undefined
       } catch (error: any) {
-        throw new ValidationError(
-          "InvalidFlags",
-          `OfferCreate flags error: ${error.message}`
-        );
+        throw new ValidationError("InvalidFlags", `OfferCreate flags error: ${error.message}`)
       }
 
       // Build and return transaction
@@ -95,25 +86,23 @@ export class DexService {
         Fee: fee,
         Sequence: sequence,
         LastLedgerSequence: lastLedgerSequence,
-        ...(validatedMemos && validatedMemos.length > 0
-          ? { Memos: validatedMemos }
-          : {}),
+        ...(validatedMemos && validatedMemos.length > 0 ? { Memos: validatedMemos } : {}),
         ...(expiration !== undefined && { Expiration: expiration }),
         ...(combinedFlags !== undefined && { Flags: combinedFlags }),
         ...(domainId !== undefined && { DomainID: domainId }),
-      };
+      }
 
-      return tx;
+      return tx
     } catch (error: any) {
       if (error instanceof ValidationError) {
-        throw error;
+        throw error
       }
       throw new ValidationError(
         "OfferCreateError",
-        `Error creating unsigned OfferCreate tx: ${error.message || error}`
-      );
+        `Error creating unsigned OfferCreate tx: ${error.message || error}`,
+      )
     }
-  };
+  }
 
   /**
    * Builds an unsigned Payment transaction for cross-currency payments on the XRPL
@@ -145,21 +134,18 @@ export class DexService {
     flags?: IPaymentFlags,
     memos?: Memo[],
     destinationTag?: number,
-    invoiceId?: string
+    invoiceId?: string,
   ): Payment => {
     try {
       // Validate destination address
       if (!destination || typeof destination !== "string") {
-        throw new ValidationError(
-          "InvalidDestination",
-          "Destination address must be a string"
-        );
+        throw new ValidationError("InvalidDestination", "Destination address must be a string")
       }
 
       // Validate user-provided amounts
-      validateAmount("amount", amount);
+      validateAmount("amount", amount)
       if (sendMax) {
-        validateAmount("sendMax", sendMax);
+        validateAmount("sendMax", sendMax)
       }
 
       // Validate destinationTag if provided
@@ -169,33 +155,24 @@ export class DexService {
       ) {
         throw new ValidationError(
           "InvalidDestinationTag",
-          "DestinationTag must be a non-negative integer"
-        );
+          "DestinationTag must be a non-negative integer",
+        )
       }
 
       // Validate invoiceId if provided
-      if (
-        invoiceId !== undefined &&
-        (typeof invoiceId !== "string" || invoiceId.length === 0)
-      ) {
-        throw new ValidationError(
-          "InvalidInvoiceId",
-          "InvoiceId must be a non-empty string"
-        );
+      if (invoiceId !== undefined && (typeof invoiceId !== "string" || invoiceId.length === 0)) {
+        throw new ValidationError("InvalidInvoiceId", "InvoiceId must be a non-empty string")
       }
 
       // Validate memos if provided
-      const validatedMemos = memos ? validateMemos(memos) : undefined;
+      const validatedMemos = memos ? validateMemos(memos) : undefined
 
       // Derive flags bitmask
-      let combinedFlags: number | undefined;
+      let combinedFlags: number | undefined
       try {
-        combinedFlags = flags ? derivePaymentFlags(flags) : undefined;
+        combinedFlags = flags ? derivePaymentFlags(flags) : undefined
       } catch (error: any) {
-        throw new ValidationError(
-          "InvalidFlags",
-          `Payment flags error: ${error.message}`
-        );
+        throw new ValidationError("InvalidFlags", `Payment flags error: ${error.message}`)
       }
 
       // Build and return transaction
@@ -210,24 +187,22 @@ export class DexService {
         ...(sendMax !== undefined && { SendMax: sendMax }),
         ...(paths?.length ? { Paths: paths } : {}),
         ...(combinedFlags !== undefined && { Flags: combinedFlags }),
-        ...(validatedMemos && validatedMemos.length > 0
-          ? { Memos: validatedMemos }
-          : {}),
+        ...(validatedMemos && validatedMemos.length > 0 ? { Memos: validatedMemos } : {}),
         ...(destinationTag !== undefined && { DestinationTag: destinationTag }),
         ...(invoiceId !== undefined && { InvoiceID: invoiceId }),
-      };
+      }
 
-      return tx;
+      return tx
     } catch (error: any) {
       if (error instanceof ValidationError) {
-        throw error;
+        throw error
       }
       throw new ValidationError(
         "PaymentError",
-        `Error creating unsigned Payment tx: ${error.message || error}`
-      );
+        `Error creating unsigned Payment tx: ${error.message || error}`,
+      )
     }
-  };
+  }
 
   /**
    * Builds an unsigned OfferCancel transaction for cancelling existing offers on the XRPL DEX
@@ -247,19 +222,19 @@ export class DexService {
     fee: string,
     sequence: number,
     lastLedgerSequence: number,
-    memos?: Memo[]
+    memos?: Memo[],
   ): OfferCancel => {
     try {
       // Validate offerSequence
       if (!Number.isInteger(offerSequence) || offerSequence <= 0) {
         throw new ValidationError(
           "InvalidOfferSequence",
-          "OfferSequence must be a positive integer"
-        );
+          "OfferSequence must be a positive integer",
+        )
       }
 
       // Validate memos if provided
-      const validatedMemos = memos ? validateMemos(memos) : undefined;
+      const validatedMemos = memos ? validateMemos(memos) : undefined
 
       // Build and return transaction
       const tx: OfferCancel = {
@@ -269,22 +244,20 @@ export class DexService {
         Fee: fee,
         Sequence: sequence,
         LastLedgerSequence: lastLedgerSequence,
-        ...(validatedMemos && validatedMemos.length > 0
-          ? { Memos: validatedMemos }
-          : {}),
-      };
+        ...(validatedMemos && validatedMemos.length > 0 ? { Memos: validatedMemos } : {}),
+      }
 
-      return tx;
+      return tx
     } catch (error: any) {
       if (error instanceof ValidationError) {
-        throw error;
+        throw error
       }
       throw new ValidationError(
         "OfferCancelError",
-        `Error creating unsigned OfferCancel tx: ${error.message || error}`
-      );
+        `Error creating unsigned OfferCancel tx: ${error.message || error}`,
+      )
     }
-  };
+  }
 
   /**
    * Builds an unsigned CredentialCreate transaction for creating credentials on the XRPL
@@ -311,15 +284,12 @@ export class DexService {
     expiration?: number,
     uri?: string,
     flags?: number,
-    memos?: Memo[]
+    memos?: Memo[],
   ): CredentialCreate => {
     try {
       // validate subject as a valid xrp address
       if (!subject || !isValidAddress(subject)) {
-        throw new ValidationError(
-          "InvalidSubject",
-          "Subject must be a valid XRPL address"
-        );
+        throw new ValidationError("InvalidSubject", "Subject must be a valid XRPL address")
       }
       // CredentialType: hex string, 1–64 bytes (2–128 hex chars)
       if (
@@ -329,35 +299,31 @@ export class DexService {
       ) {
         throw new ValidationError(
           "InvalidCredentialType",
-          "CredentialType must be a hex string (2-128 hex chars, even length, 1-64 bytes)"
-        );
+          "CredentialType must be a hex string (2-128 hex chars, even length, 1-64 bytes)",
+        )
       }
       // Expiration: UInt32, positive integer
       if (expiration !== undefined) {
         if (!Number.isInteger(expiration) || expiration < 0) {
           throw new ValidationError(
             "InvalidExpiration",
-            "Expiration must be a non-negative integer (seconds since Ripple Epoch)"
-          );
+            "Expiration must be a non-negative integer (seconds since Ripple Epoch)",
+          )
         }
       }
 
       // URI: Hex string, 1–256 bytes (2–512 hex chars)
       if (uri !== undefined) {
-        if (
-          typeof uri !== "string" ||
-          !HEX_REGEX.test(uri) ||
-          uri.length % 2 !== 0
-        ) {
+        if (typeof uri !== "string" || !HEX_REGEX.test(uri) || uri.length % 2 !== 0) {
           throw new ValidationError(
             "InvalidURI",
-            "URI must be a hex string (2-512 hex chars, even length, 1-256 bytes)"
-          );
+            "URI must be a hex string (2-512 hex chars, even length, 1-256 bytes)",
+          )
         }
       }
 
       // Validate memos if provided
-      const validatedMemos = memos ? validateMemos(memos) : undefined;
+      const validatedMemos = memos ? validateMemos(memos) : undefined
 
       // Build and return transaction
       const tx: CredentialCreate = {
@@ -371,20 +337,19 @@ export class DexService {
         ...(expiration !== undefined && { Expiration: expiration }),
         ...(uri !== undefined && { URI: uri }),
         ...(flags !== undefined && { Flags: flags }),
-        ...(validatedMemos &&
-          validatedMemos.length > 0 && { Memos: validatedMemos }),
-      };
-      return tx;
+        ...(validatedMemos && validatedMemos.length > 0 && { Memos: validatedMemos }),
+      }
+      return tx
     } catch (error: any) {
       if (error instanceof ValidationError) {
-        throw error;
+        throw error
       }
       throw new ValidationError(
         "OfferCancelError",
-        `Error creating unsigned CredentialCreate tx: ${error.message || error}`
-      );
+        `Error creating unsigned CredentialCreate tx: ${error.message || error}`,
+      )
     }
-  };
+  }
 
   /**
    * Builds an unsigned CredentialAccept transaction for creating credentials on the XRPL
@@ -407,15 +372,12 @@ export class DexService {
     issuer: string,
     credentialType: string,
     flags?: number,
-    memos?: Memo[]
+    memos?: Memo[],
   ): CredentialAccept => {
     try {
       // Validate Issuer
       if (!issuer || !isValidAddress(issuer)) {
-        throw new ValidationError(
-          "InvalidIssuer",
-          "Issuer must be a valid XRPL address"
-        );
+        throw new ValidationError("InvalidIssuer", "Issuer must be a valid XRPL address")
       }
       // CredentialType: hex string, 1–64 bytes (2–128 hex chars, even length)
       if (
@@ -425,12 +387,12 @@ export class DexService {
       ) {
         throw new ValidationError(
           "InvalidCredentialType",
-          "CredentialType must be a hex string (2-128 hex chars, even length, 1-64 bytes)"
-        );
+          "CredentialType must be a hex string (2-128 hex chars, even length, 1-64 bytes)",
+        )
       }
 
       // Validate memos if provided
-      const validatedMemos = memos ? validateMemos(memos) : undefined;
+      const validatedMemos = memos ? validateMemos(memos) : undefined
 
       // Construct the transaction
       const tx: CredentialAccept = {
@@ -442,20 +404,19 @@ export class DexService {
         Sequence: sequence,
         LastLedgerSequence: lastLedgerSequence,
         ...(flags !== undefined && { Flags: flags }),
-        ...(validatedMemos &&
-          validatedMemos.length > 0 && { Memos: validatedMemos }),
-      };
-      return tx;
+        ...(validatedMemos && validatedMemos.length > 0 && { Memos: validatedMemos }),
+      }
+      return tx
     } catch (error: any) {
       if (error instanceof ValidationError) {
-        throw error;
+        throw error
       }
       throw new ValidationError(
         "CredentialAcceptError",
-        `Error creating unsigned CredentialAccept tx: ${error.message || error}`
-      );
+        `Error creating unsigned CredentialAccept tx: ${error.message || error}`,
+      )
     }
-  };
+  }
 
   /**
    * Builds an unsigned CredentialDelete transaction for deleting credentials on the XRPL
@@ -480,27 +441,23 @@ export class DexService {
     issuer?: string,
     subject?: string,
     flags?: number,
-    memos?: Memo[]
+    memos?: Memo[],
   ): CredentialDelete => {
     try {
       // Must provide at least one: issuer or subject
       if ((!issuer || issuer === "") && (!subject || subject === "")) {
         throw new ValidationError(
           "MissingCredentialDeleteParams",
-          "You must provide the Subject field, Issuer field, or both."
-        );
+          "You must provide the Subject field, Issuer field, or both.",
+        )
       }
 
       // Validate that credentialType is provided (not null/undefined/empty)
-      if (
-        credentialType === undefined ||
-        credentialType === null ||
-        credentialType === ""
-      ) {
+      if (credentialType === undefined || credentialType === null || credentialType === "") {
         throw new ValidationError(
           "MissingCredentialType",
-          "CredentialType is a required parameter for CredentialDelete"
-        );
+          "CredentialType is a required parameter for CredentialDelete",
+        )
       }
 
       // Validate credentialType format: hex string, 1–64 bytes (2–128 hex chars), even length
@@ -511,28 +468,28 @@ export class DexService {
       ) {
         throw new ValidationError(
           "InvalidCredentialType",
-          "CredentialType must be a hex string (2–128 hex chars, even length, 1–64 bytes)"
-        );
+          "CredentialType must be a hex string (2–128 hex chars, even length, 1–64 bytes)",
+        )
       }
 
       // Validate issuer, if provided
       if (issuer && !isValidAddress(issuer)) {
         throw new ValidationError(
           "InvalidIssuer",
-          "Issuer must be a valid XRPL address if provided"
-        );
+          "Issuer must be a valid XRPL address if provided",
+        )
       }
 
       // Validate subject, if provided
       if (subject && !isValidAddress(subject)) {
         throw new ValidationError(
           "InvalidSubject",
-          "Subject must be a valid XRPL address if provided"
-        );
+          "Subject must be a valid XRPL address if provided",
+        )
       }
 
       // Validate memos if provided
-      const validatedMemos = memos ? validateMemos(memos) : undefined;
+      const validatedMemos = memos ? validateMemos(memos) : undefined
 
       // Build tx object
       const tx: CredentialDelete = {
@@ -545,17 +502,16 @@ export class DexService {
         Sequence: sequence,
         LastLedgerSequence: lastLedgerSequence,
         ...(flags !== undefined && { Flags: flags }),
-        ...(validatedMemos &&
-          validatedMemos.length > 0 && { Memos: validatedMemos }),
-      };
+        ...(validatedMemos && validatedMemos.length > 0 && { Memos: validatedMemos }),
+      }
 
-      return tx;
+      return tx
     } catch (error: any) {
-      if (error instanceof ValidationError) throw error;
+      if (error instanceof ValidationError) throw error
       throw new ValidationError(
         "CredentialDeleteError",
-        `Error creating unsigned CredentialDelete tx: ${error.message || error}`
-      );
+        `Error creating unsigned CredentialDelete tx: ${error.message || error}`,
+      )
     }
-  };
+  }
 }

@@ -1,100 +1,97 @@
 import {
-  Wallet,
-  Transaction,
-  Client,
-  TxResponse,
-  isValidAddress,
-  Amount,
-} from "xrpl";
-import {
   BasePath,
   Fireblocks,
-  TransactionResponse,
+  type TransactionResponse,
   TransferPeerPathType,
-} from "@fireblocks/ts-sdk";
-import { SigningService, DexService, TokenService } from "./services";
+} from "@fireblocks/ts-sdk"
+import dotenv from "dotenv"
 import {
-  TokenTransferOpts,
-  CrossCurrencyPaymentOpts,
-  OfferCreateOpts,
-  OfferCancelOpts,
-  NetworkParams,
+  type Amount,
+  Client,
+  type Transaction,
+  type TxResponse,
+  Wallet,
+  isValidAddress,
+} from "xrpl"
+import type {
+  AccountSetOpts,
   BurnTokenOpts,
   ClawbackOpts,
+  CredentialAcceptOpts,
+  CredentialCreateOpts,
+  CredentialDeleteOpts,
+  CrossCurrencyPaymentOpts,
   FreezeTokenOpts,
   ITrustSetFlags,
-  AccountSetOpts,
+  NetworkParams,
+  OfferCancelOpts,
+  OfferCreateOpts,
+  TokenTransferOpts,
   TrustSetOpts,
   XrpTransferOpts,
-  CredentialCreateOpts,
-  CredentialAcceptOpts,
-  CredentialDeleteOpts,
-} from "./config/types";
-import { XRPL_BURN_ADDRESS } from "./utils/constants";
-import { getNetworkParams } from "./utils/utils";
-import dotenv from "dotenv";
-import { readFileSync } from "fs";
-import { SigningError, ValidationError } from "./errors/errors";
-import { Logger } from "./utils/logger";
+} from "./config/types.js"
+import { SigningError, ValidationError } from "./errors/errors.js"
+import { DexService, SigningService, TokenService } from "./services/index.js"
+import { XRPL_BURN_ADDRESS } from "./utils/constants.js"
+import { Logger } from "./utils/logger.js"
+import { getNetworkParams } from "./utils/utils.js"
 
-const logger = new Logger("Fireblocks-Xrp-SDK");
+const logger = new Logger("Fireblocks-Xrp-SDK")
 
-dotenv.config();
+dotenv.config()
 
 export interface FireblocksConfig {
-  apiKey: string;
+  apiKey: string
   /**
    * The secret key to use for authentication.
    * This can also be set as an environment variable FIREBLOCKS_SECRET_KEY
    */
-  apiSecret: string;
-  vaultAccountId: string;
-  assetId?: string;
-  basePath?: BasePath;
+  apiSecret: string
+  vaultAccountId: string
+  assetId?: string
+  basePath?: BasePath
 }
 
 export class FireblocksXrpSdk extends Wallet {
-  private fireblocks: Fireblocks;
-  private vaultAccountId: string;
-  private assetId: string;
-  private signingService: SigningService;
-  private dexService: DexService;
-  private tokenService: TokenService;
-  client: Client;
+  private fireblocks: Fireblocks
+  private vaultAccountId: string
+  private assetId: string
+  private signingService: SigningService
+  private dexService: DexService
+  private tokenService: TokenService
+  client: Client
 
   constructor(
     fireblocks: Fireblocks,
     config: FireblocksConfig,
     publicKey: string,
-    address: string
+    address: string,
   ) {
     super(publicKey, "DUMMY_PRIVATE_KEY_NOT_USED", {
       masterAddress: address,
-    });
+    })
 
-    this.fireblocks = fireblocks;
-    this.vaultAccountId = config.vaultAccountId;
-    this.assetId = config.assetId || "XRP_TEST";
+    this.fireblocks = fireblocks
+    this.vaultAccountId = config.vaultAccountId
+    this.assetId = config.assetId || "XRP_TEST"
 
     const rpcUrl =
-      this.assetId === "XRP_TEST"
-        ? "wss://s.altnet.rippletest.net:51233"
-        : "wss://xrplcluster.com";
+      this.assetId === "XRP_TEST" ? "wss://s.altnet.rippletest.net:51233" : "wss://xrplcluster.com"
 
-    this.client = new Client(rpcUrl);
-    this.signingService = new SigningService(this.fireblocks, this);
-    this.dexService = new DexService();
-    this.tokenService = new TokenService();
+    this.client = new Client(rpcUrl)
+    this.signingService = new SigningService(this.fireblocks, this)
+    this.dexService = new DexService()
+    this.tokenService = new TokenService()
   }
 
   // Override the sign method from the parent Wallet class
-  public sign = (
+  public override sign = (
     transaction: Transaction,
     publicKey: string,
-    multisign?: boolean | string
+    multisign?: boolean | string,
   ): { tx_blob: string; hash: string } => {
-    return this.signingService.sign(transaction, publicKey, multisign);
-  };
+    return this.signingService.sign(transaction, publicKey, multisign)
+  }
 
   /**
    * OfferCreate transaction on the Ripple ledger, signed by the Fireblocks SDK and returns the SubmitResponse object from the xrpl SDK
@@ -116,12 +113,9 @@ export class FireblocksXrpSdk extends Wallet {
     memos,
   }: OfferCreateOpts): Promise<TxResponse> => {
     try {
-      const { fee, sequence, lastLedgerSequence } =
-        await this.getClientParams();
+      const { fee, sequence, lastLedgerSequence } = await this.getClientParams()
 
-      logger.info(
-        `Creating an OfferCreate transaction for wallet: ${this.address}...`
-      );
+      logger.info(`Creating an OfferCreate transaction for wallet: ${this.address}...`)
       const transaction = this.dexService.getOfferCreateUnsignedTx(
         this.address,
         sellAmount,
@@ -132,17 +126,17 @@ export class FireblocksXrpSdk extends Wallet {
         domainId,
         expiration,
         flags,
-        memos
-      );
-      const note = `OfferCreate transaction for wallet: ${this.address}`;
-      return await this.signAndSubmitTx(transaction, note);
+        memos,
+      )
+      const note = `OfferCreate transaction for wallet: ${this.address}`
+      return await this.signAndSubmitTx(transaction, note)
     } catch (error: any) {
       if (error instanceof ValidationError || error instanceof SigningError) {
-        throw error;
+        throw error
       }
-      throw new Error(`Error in offerCreate: ${error.message || error}`);
+      throw new Error(`Error in offerCreate: ${error.message || error}`)
     }
-  };
+  }
 
   /**
    * OfferCancel transaction on the Ripple ledger, signed by the Fireblocks SDK and returns the TxResponse object from the xrpl SDK
@@ -151,32 +145,28 @@ export class FireblocksXrpSdk extends Wallet {
    * @returns TxResponse object with tx results from Ripple ledger
    * @throws Error if the transaction fails
    */
-  public offerCancel = async ({
-    offerSequence,
-    memos,
-  }: OfferCancelOpts): Promise<TxResponse> => {
+  public offerCancel = async ({ offerSequence, memos }: OfferCancelOpts): Promise<TxResponse> => {
     try {
-      const { fee, sequence, lastLedgerSequence } =
-        await this.getClientParams();
+      const { fee, sequence, lastLedgerSequence } = await this.getClientParams()
 
-      logger.info(`Creating an OfferCancel transaction...`);
+      logger.info(`Creating an OfferCancel transaction...`)
       const transaction = this.dexService.getOfferCancelUnsignedTx(
         this.address,
         offerSequence,
         fee,
         sequence,
         lastLedgerSequence,
-        memos
-      );
-      const note = `OfferCancel transaction for wallet: ${this.address}`;
-      return await this.signAndSubmitTx(transaction, note);
+        memos,
+      )
+      const note = `OfferCancel transaction for wallet: ${this.address}`
+      return await this.signAndSubmitTx(transaction, note)
     } catch (error: any) {
       if (error instanceof ValidationError || error instanceof SigningError) {
-        throw error;
+        throw error
       }
-      throw new Error(`Error in offerCreate: ${error.message || error}`);
+      throw new Error(`Error in offerCreate: ${error.message || error}`)
     }
-  };
+  }
 
   /**
    * CrossCurrencyPayment transaction on the Ripple ledger, signed by the Fireblocks SDK and returns the TxResponse object from the xrpl SDK
@@ -202,10 +192,9 @@ export class FireblocksXrpSdk extends Wallet {
     memos,
   }: CrossCurrencyPaymentOpts): Promise<TxResponse> => {
     try {
-      const { fee, sequence, lastLedgerSequence } =
-        await this.getClientParams();
+      const { fee, sequence, lastLedgerSequence } = await this.getClientParams()
 
-      logger.info(`Creating a CrossCurrencyPayment transaction...`);
+      logger.info(`Creating a CrossCurrencyPayment transaction...`)
       const transaction = this.dexService.getCrossCurrencyPaymentUnsignedTx(
         this.address,
         destination,
@@ -218,17 +207,17 @@ export class FireblocksXrpSdk extends Wallet {
         flags,
         memos,
         destinationTag,
-        invoiceId
-      );
-      const note = `CrossCurrencyPayment transaction for wallet: ${this.address}`;
-      return await this.signAndSubmitTx(transaction, note);
+        invoiceId,
+      )
+      const note = `CrossCurrencyPayment transaction for wallet: ${this.address}`
+      return await this.signAndSubmitTx(transaction, note)
     } catch (error: any) {
       if (error instanceof ValidationError || error instanceof SigningError) {
-        throw error;
+        throw error
       }
-      throw new Error(`Error in crossCurrencyPayment: ${error.message}`);
+      throw new Error(`Error in crossCurrencyPayment: ${error.message}`)
     }
-  };
+  }
 
   /**
    * CredentialCreate transaction on the Ripple ledger, signed by the Fireblocks SDK and returns the TxResponse object from the xrpl SDK
@@ -250,10 +239,9 @@ export class FireblocksXrpSdk extends Wallet {
     memos,
   }: CredentialCreateOpts) => {
     try {
-      const { fee, sequence, lastLedgerSequence } =
-        await this.getClientParams();
+      const { fee, sequence, lastLedgerSequence } = await this.getClientParams()
 
-      logger.info(`Creating a CredentialCreate transaction...`);
+      logger.info(`Creating a CredentialCreate transaction...`)
       const transaction = this.dexService.getCredentialCreateUnsignedTx(
         this.address,
         fee,
@@ -264,17 +252,17 @@ export class FireblocksXrpSdk extends Wallet {
         expiration,
         uri,
         flags,
-        memos
-      );
-      const note = `CredentialCreate transaction for wallet: ${this.address}`;
-      return await this.signAndSubmitTx(transaction, note);
+        memos,
+      )
+      const note = `CredentialCreate transaction for wallet: ${this.address}`
+      return await this.signAndSubmitTx(transaction, note)
     } catch (error: any) {
       if (error instanceof ValidationError || error instanceof SigningError) {
-        throw error;
+        throw error
       }
-      throw new Error(`Error in credentialCreate: ${error.message}`);
+      throw new Error(`Error in credentialCreate: ${error.message}`)
     }
-  };
+  }
 
   /**
    * CredentialAccept transaction on the Ripple ledger, signed by the Fireblocks SDK and returns the TxResponse object from the xrpl SDK
@@ -292,10 +280,9 @@ export class FireblocksXrpSdk extends Wallet {
     memos,
   }: CredentialAcceptOpts): Promise<TxResponse> => {
     try {
-      const { fee, sequence, lastLedgerSequence } =
-        await this.getClientParams();
+      const { fee, sequence, lastLedgerSequence } = await this.getClientParams()
 
-      logger.info(`Creating a CredentialAccept transaction...`);
+      logger.info(`Creating a CredentialAccept transaction...`)
       const transaction = this.dexService.getCredentialAcceptUnsignedTx(
         this.address,
         fee,
@@ -304,17 +291,17 @@ export class FireblocksXrpSdk extends Wallet {
         issuer,
         credentialType,
         flags,
-        memos
-      );
-      const note = `CredentialAccept transaction for wallet: ${this.address}`;
-      return await this.signAndSubmitTx(transaction, note);
+        memos,
+      )
+      const note = `CredentialAccept transaction for wallet: ${this.address}`
+      return await this.signAndSubmitTx(transaction, note)
     } catch (error: any) {
       if (error instanceof ValidationError || error instanceof SigningError) {
-        throw error;
+        throw error
       }
-      throw new Error(`Error in credentialAccept: ${error.message}`);
+      throw new Error(`Error in credentialAccept: ${error.message}`)
     }
-  };
+  }
 
   public credentialDelete = async ({
     credentialType,
@@ -324,10 +311,9 @@ export class FireblocksXrpSdk extends Wallet {
     memos,
   }: CredentialDeleteOpts): Promise<TxResponse> => {
     try {
-      const { fee, sequence, lastLedgerSequence } =
-        await this.getClientParams();
+      const { fee, sequence, lastLedgerSequence } = await this.getClientParams()
 
-      logger.info(`Creating a CredentialDelete transaction...`);
+      logger.info(`Creating a CredentialDelete transaction...`)
       const transaction = this.dexService.getCredentialDeleteUnsignedTx(
         this.address,
         fee,
@@ -337,17 +323,17 @@ export class FireblocksXrpSdk extends Wallet {
         issuer,
         subject,
         flags,
-        memos
-      );
-      const note = `CredentialDelete transaction for wallet: ${this.address}`;
-      return await this.signAndSubmitTx(transaction, note);
+        memos,
+      )
+      const note = `CredentialDelete transaction for wallet: ${this.address}`
+      return await this.signAndSubmitTx(transaction, note)
     } catch (error: any) {
       if (error instanceof ValidationError || error instanceof SigningError) {
-        throw error;
+        throw error
       }
-      throw new Error(`Error in credentialDelete: ${error.message}`);
+      throw new Error(`Error in credentialDelete: ${error.message}`)
     }
-  };
+  }
   /**
    * AccountSet transaction on the Ripple ledger, signed by the Fireblocks SDK and returns the TxResponse object from the xrpl SDK
    * @param configs - AccountSet configurations, can include setFlag, clearFlag, tfFlags, domain, transferRate, tickSize, emailHash, messageKey
@@ -357,35 +343,29 @@ export class FireblocksXrpSdk extends Wallet {
    * @throws ValidationError if the configs are invalid
    * @throws SigningError if the transaction signing fails
    */
-  public accountSet = async ({
-    configs,
-    memos,
-  }: AccountSetOpts): Promise<TxResponse> => {
+  public accountSet = async ({ configs, memos }: AccountSetOpts): Promise<TxResponse> => {
     try {
-      const { fee, sequence, lastLedgerSequence } =
-        await this.getClientParams();
+      const { fee, sequence, lastLedgerSequence } = await this.getClientParams()
 
-      logger.info(
-        `Creating an AccountSet transaction for wallet: ${this.address}...`
-      );
+      logger.info(`Creating an AccountSet transaction for wallet: ${this.address}...`)
       const tx = this.tokenService.createAccountSetTx(
         this.address,
         fee,
         sequence,
         lastLedgerSequence,
         configs,
-        memos
-      );
+        memos,
+      )
 
-      const note = `AccountSet transaction for wallet: ${this.address}`;
-      return await this.signAndSubmitTx(tx, note);
+      const note = `AccountSet transaction for wallet: ${this.address}`
+      return await this.signAndSubmitTx(tx, note)
     } catch (err: any) {
       if (err instanceof ValidationError || err instanceof SigningError) {
-        throw err;
+        throw err
       }
-      throw new Error(`Error in accountSet: ${err.message || err}`);
+      throw new Error(`Error in accountSet: ${err.message || err}`)
     }
-  };
+  }
 
   /**
    * Create or modify a trust line between this SDK’s account (this.address)
@@ -412,12 +392,11 @@ export class FireblocksXrpSdk extends Wallet {
   }: TrustSetOpts): Promise<TxResponse> => {
     try {
       // Fetch network parameters (fee, sequence, lastLedgerSequence)
-      const { fee, sequence, lastLedgerSequence } =
-        await this.getClientParams();
+      const { fee, sequence, lastLedgerSequence } = await this.getClientParams()
 
       logger.info(
-        `Creating a TrustSet transaction for wallet: ${this.address} → trust line to ${limitAmount.issuer} (${limitAmount.currency})...`
-      );
+        `Creating a TrustSet transaction for wallet: ${this.address} → trust line to ${limitAmount.issuer} (${limitAmount.currency})...`,
+      )
 
       // Delegate to service‐level createTrustSetTx (may throw ValidationError)
       const tx = this.tokenService.createTrustSetTx(
@@ -429,24 +408,24 @@ export class FireblocksXrpSdk extends Wallet {
         flags,
         qualityIn,
         qualityOut,
-        memos
-      );
+        memos,
+      )
 
       // Sign & submit
-      const note = `TrustSet: trust line to ${limitAmount.issuer} (${limitAmount.currency})`;
-      return await this.signAndSubmitTx(tx, note);
+      const note = `TrustSet: trust line to ${limitAmount.issuer} (${limitAmount.currency})`
+      return await this.signAndSubmitTx(tx, note)
     } catch (err: any) {
       // Rethrow ValidationError or SigningError unmodified
       if (err instanceof ValidationError || err instanceof SigningError) {
-        throw err;
+        throw err
       }
       // Wrap any other unexpected errors
-      throw new Error(`Error in trustSet: ${err.message || err}`);
+      throw new Error(`Error in trustSet: ${err.message || err}`)
     } finally {
       // Always disconnect
-      await this.shutDown();
+      await this.shutDown()
     }
-  };
+  }
 
   /**
    * A helper method to transfer XRP using the SDK. Note: This method uses Fireblocks createTransaction endpoint and does not require RAW signing!
@@ -464,14 +443,11 @@ export class FireblocksXrpSdk extends Wallet {
       //address validation for OneTimeAdress
       if (JSON.stringify(destination).includes("oneTimeAddress")) {
         if (!isValidAddress(destination?.oneTimeAddress?.address!)) {
-          throw new ValidationError(
-            "InvalidDestination",
-            `Invalid destination one time address`
-          );
+          throw new ValidationError("InvalidDestination", `Invalid destination one time address`)
         }
       }
-      logger.info(`Creating an XRP transfer transaction...`);
-      let tx;
+      logger.info(`Creating an XRP transfer transaction...`)
+      let tx
       try {
         tx = (
           await this.fireblocks.transactions.createTransaction({
@@ -486,32 +462,28 @@ export class FireblocksXrpSdk extends Wallet {
               note: note ? note : "XRP transfer using the Fireblocks XRP SDK",
             },
           })
-        ).data;
+        ).data
       } catch (error: any) {
         throw new Error(
-          `Fireblocks createTransaction error: ${JSON.stringify(
-            error.response,
-            null,
-            2
-          )}`
-        );
+          `Fireblocks createTransaction error: ${JSON.stringify(error.response, null, 2)}`,
+        )
       }
 
       if (!tx) {
-        throw new Error(`Error creating xrp transfer on Fireblocks`);
+        throw new Error(`Error creating xrp transfer on Fireblocks`)
       }
-      const res = await this.signingService.waitForSignature(tx);
+      const res = await this.signingService.waitForSignature(tx)
       if (!res) {
-        throw new Error(`Failed to complete the Tx submission on Fireblocks`);
+        throw new Error(`Failed to complete the Tx submission on Fireblocks`)
       }
-      return res;
+      return res
     } catch (error: any) {
       if (error instanceof ValidationError || error instanceof SigningError) {
-        throw error;
+        throw error
       }
-      throw new Error(`Error in xrpTransfer: ${error}`);
+      throw new Error(`Error in xrpTransfer: ${error}`)
     }
-  };
+  }
 
   /**
    * A Paymet transaction on Ripple, used for fungible or IOU token payments
@@ -531,10 +503,9 @@ export class FireblocksXrpSdk extends Wallet {
     deliverMin,
   }: TokenTransferOpts): Promise<TxResponse> => {
     try {
-      const { fee, sequence, lastLedgerSequence } =
-        await this.getClientParams();
+      const { fee, sequence, lastLedgerSequence } = await this.getClientParams()
 
-      logger.info(`Creating a token transfer transaction...`);
+      logger.info(`Creating a token transfer transaction...`)
       const unsignedTx = this.tokenService.createFungibleTokenPaymentTx(
         this.address,
         destination,
@@ -547,19 +518,19 @@ export class FireblocksXrpSdk extends Wallet {
         destinationTag,
         invoiceId,
         sendMax,
-        deliverMin
-      );
-      const note = `Token transfer transaction for wallet ${this.address}`;
-      return await this.signAndSubmitTx(unsignedTx, note);
+        deliverMin,
+      )
+      const note = `Token transfer transaction for wallet ${this.address}`
+      return await this.signAndSubmitTx(unsignedTx, note)
     } catch (error: any) {
       if (error instanceof ValidationError || error instanceof SigningError) {
-        throw error;
+        throw error
       }
-      throw new Error(`Error in tokenTransfer: ${error.message}`);
+      throw new Error(`Error in tokenTransfer: ${error.message}`)
     } finally {
-      await this.shutDown();
+      await this.shutDown()
     }
-  };
+  }
 
   public burnToken = async ({
     amount,
@@ -569,10 +540,9 @@ export class FireblocksXrpSdk extends Wallet {
     invoiceId,
   }: BurnTokenOpts): Promise<TxResponse> => {
     try {
-      const { fee, sequence, lastLedgerSequence } =
-        await this.getClientParams();
+      const { fee, sequence, lastLedgerSequence } = await this.getClientParams()
 
-      logger.info(`Creating a token burn transaction...`);
+      logger.info(`Creating a token burn transaction...`)
       const tx = this.tokenService.createFungibleTokenPaymentTx(
         this.address,
         XRPL_BURN_ADDRESS,
@@ -583,19 +553,19 @@ export class FireblocksXrpSdk extends Wallet {
         flags,
         memos,
         destinationTag,
-        invoiceId
-      );
-      const note = `Token burn transaction for wallet ${this.address}`;
-      return await this.signAndSubmitTx(tx, note);
+        invoiceId,
+      )
+      const note = `Token burn transaction for wallet ${this.address}`
+      return await this.signAndSubmitTx(tx, note)
     } catch (error: any) {
       if (error instanceof ValidationError || error instanceof SigningError) {
-        throw error;
+        throw error
       }
-      throw new Error(`Error in burnToken: ${error.message || error}`);
+      throw new Error(`Error in burnToken: ${error.message || error}`)
     } finally {
-      await this.shutDown();
+      await this.shutDown()
     }
-  };
+  }
   /**
    * Freeze or unfreeze a trust line between issuer and holder.
    */
@@ -606,26 +576,19 @@ export class FireblocksXrpSdk extends Wallet {
     memos,
   }: FreezeTokenOpts): Promise<TxResponse> => {
     try {
-      const { fee, sequence, lastLedgerSequence } =
-        await this.getClientParams();
+      const { fee, sequence, lastLedgerSequence } = await this.getClientParams()
 
-      logger.info(
-        `Creating a ${
-          freeze ? "freeze" : "unfreeze"
-        } trust line for ${holder}...`
-      );
+      logger.info(`Creating a ${freeze ? "freeze" : "unfreeze"} trust line for ${holder}...`)
 
       // Build the unsigned TrustSet tx
       const limitAmount: Amount = {
         currency,
         issuer: holder,
         value: "1", // for freeze/unfreeze, the actual numeric value is ignored
-      };
+      }
 
       // Build a small flags‐object for freeze/unfreeze
-      const flags: ITrustSetFlags = freeze
-        ? { tfSetFreeze: true }
-        : { tfClearFreeze: true };
+      const flags: ITrustSetFlags = freeze ? { tfSetFreeze: true } : { tfClearFreeze: true }
 
       const tx = this.tokenService.createTrustSetTx(
         this.address,
@@ -636,22 +599,22 @@ export class FireblocksXrpSdk extends Wallet {
         flags,
         undefined,
         undefined,
-        memos
-      );
+        memos,
+      )
 
       // Sign & submit
-      const action = freeze ? "freeze" : "unfreeze";
-      const note = `${action} trust line for ${currency}/${this.address} → ${holder}`;
-      return await this.signAndSubmitTx(tx, note);
+      const action = freeze ? "freeze" : "unfreeze"
+      const note = `${action} trust line for ${currency}/${this.address} → ${holder}`
+      return await this.signAndSubmitTx(tx, note)
     } catch (err: any) {
       if (err instanceof ValidationError || err instanceof SigningError) {
-        throw err;
+        throw err
       }
-      throw new Error(`Error in freezeToken: ${err.message || err}`);
+      throw new Error(`Error in freezeToken: ${err.message || err}`)
     } finally {
-      await this.shutDown();
+      await this.shutDown()
     }
-  };
+  }
 
   /**
    * Clawback issued tokens from a holder’s balance.
@@ -665,19 +628,18 @@ export class FireblocksXrpSdk extends Wallet {
   }: ClawbackOpts): Promise<TxResponse> => {
     try {
       //Fetch network params (fee, sequence, lastLedgerSequence) and connect the client
-      const { fee, sequence, lastLedgerSequence } =
-        await this.getClientParams();
+      const { fee, sequence, lastLedgerSequence } = await this.getClientParams()
 
       logger.info(
-        `Creating a Clawback transaction from ${holder} for wallet: ${this.classicAddress}...`
-      );
+        `Creating a Clawback transaction from ${holder} for wallet: ${this.classicAddress}...`,
+      )
 
       // Build the amount object, validation of the data is handled by the service method
       const amount: Amount = {
         issuer: holder,
         currency,
         value,
-      };
+      }
 
       // Build the unsigned Clawback TX
 
@@ -687,55 +649,52 @@ export class FireblocksXrpSdk extends Wallet {
         fee,
         sequence,
         lastLedgerSequence,
-        memos
-      );
+        memos,
+      )
 
       // Sign & submit
-      const note = `Clawback ${JSON.stringify(amount)} from ${holder}`;
-      return await this.signAndSubmitTx(tx, note);
+      const note = `Clawback ${JSON.stringify(amount)} from ${holder}`
+      return await this.signAndSubmitTx(tx, note)
     } catch (error: any) {
       if (error instanceof ValidationError || error instanceof SigningError) {
-        throw error;
+        throw error
       }
-      throw new Error(`Error in clawBack: ${error.message || error}`);
+      throw new Error(`Error in clawBack: ${error.message || error}`)
     } finally {
-      await this.shutDown();
+      await this.shutDown()
     }
-  };
+  }
 
   // ---------- PRIVATE HELPER METHODS ----------
   private getClientParams = async (): Promise<NetworkParams> => {
-    logger.info(`Connecting to the XRP Ledger...`);
-    await this.client.connect();
+    logger.info(`Connecting to the XRP Ledger...`)
+    await this.client.connect()
 
     if (!this.client.isConnected()) {
-      throw new Error("Failed to connect to the XRP Ledger");
+      throw new Error("Failed to connect to the XRP Ledger")
     }
 
-    const { fee, sequence, lastLedgerSequence } = await getNetworkParams(
-      this.client,
-      this.address
-    );
-    return { fee, sequence, lastLedgerSequence };
-  };
+    const { fee, sequence, lastLedgerSequence } = await getNetworkParams(this.client, this.address)
+    return { fee, sequence, lastLedgerSequence }
+  }
 
   public shutDown = async () => {
     if (this.client.isConnected()) {
-      logger.info("Disconnecting from the XRP Ledger...");
-      await this.client.disconnect();
+      logger.info("Disconnecting from the XRP Ledger...")
+      await this.client.disconnect()
     }
-  };
+  }
 
   public static createFireblocksInstance = (
     config: Omit<FireblocksConfig, "vaultAccountId"> & {
-      vaultAccountId?: string;
-    }
+      vaultAccountId?: string
+    },
   ): Fireblocks => {
-    const secretKey = config.apiSecret || process.env.FIREBLOCKS_SECRET_KEY;
+    const secretKey = config.apiSecret || process.env.FIREBLOCKS_SECRET_KEY
     if (!secretKey) {
       throw new Error(
-        "apiSecret is required either in the configuration or as environment variable FIREBLOCKS_SECRET_KEY"
-      );
+        "apiSecret is required either in the configuration or as environment variable FIREBLOCKS_SECRET_KEY",
+      )
     }
 
     return new Fireblocks({
@@ -745,26 +704,23 @@ export class FireblocksXrpSdk extends Wallet {
       additionalOptions: {
         userAgent: "FireblocksRippleSDK/1.1.0",
       },
-    });
-  };
+    })
+  }
 
   public static fetchXrpAccountInfo = async (
     fireblocks: Fireblocks,
-    config: FireblocksConfig
+    config: FireblocksConfig,
   ): Promise<{ address: string; publicKey: string }> => {
-    const assetId = config.assetId || "XRP_TEST";
+    const assetId = config.assetId || "XRP_TEST"
 
-    const vaultAccount =
-      await fireblocks.vaults.getVaultAccountAssetAddressesPaginated({
-        vaultAccountId: config.vaultAccountId,
-        assetId,
-      });
+    const vaultAccount = await fireblocks.vaults.getVaultAccountAssetAddressesPaginated({
+      vaultAccountId: config.vaultAccountId,
+      assetId,
+    })
 
-    const xrpAssetAddress = vaultAccount?.data?.addresses?.[0]?.address;
+    const xrpAssetAddress = vaultAccount?.data?.addresses?.[0]?.address
     if (!xrpAssetAddress) {
-      throw new Error(
-        `XRP address not found for vault account ${config.vaultAccountId}`
-      );
+      throw new Error(`XRP address not found for vault account ${config.vaultAccountId}`)
     }
 
     const publicKeyInfo = await fireblocks.vaults.getPublicKeyInfoForAddress({
@@ -773,84 +729,77 @@ export class FireblocksXrpSdk extends Wallet {
       change: 0,
       addressIndex: 0,
       compressed: true,
-    });
+    })
     if (!publicKeyInfo?.data?.publicKey) {
       throw new ValidationError(
         "PublicKeyNotReturned",
-        `Public key not found for vault account ${config.vaultAccountId} and asset ${assetId}`
-      );
+        `Public key not found for vault account ${config.vaultAccountId} and asset ${assetId}`,
+      )
     }
-    const publicKey = publicKeyInfo.data.publicKey.toUpperCase();
-    return { address: xrpAssetAddress, publicKey };
-  };
+    const publicKey = publicKeyInfo.data.publicKey.toUpperCase()
+    return { address: xrpAssetAddress, publicKey }
+  }
 
-  private signAndSubmitTx = async (
-    transaction: any,
-    note?: string
-  ): Promise<TxResponse> => {
+  private signAndSubmitTx = async (transaction: any, note?: string): Promise<TxResponse> => {
     try {
       if (!this.client.isConnected()) {
-        await this.client.connect();
+        await this.client.connect()
       }
 
       try {
-        await this.client.autofill(transaction);
+        await this.client.autofill(transaction)
       } catch (error: any) {
         throw new SigningError(
           "AutofillFailed",
-          `Failed to autofill transaction: ${error.message || error}`
-        );
+          `Failed to autofill transaction: ${error.message || error}`,
+        )
       }
 
-      logger.info(`Signing the transaction...`);
-      let tx_blob: string;
+      logger.info(`Signing the transaction...`)
+      let tx_blob: string
       try {
-        ({ tx_blob } = await this.signingService.signAsync(
+        ;({ tx_blob } = await this.signingService.signAsync(
           transaction,
           this.publicKey,
           this.assetId,
           this.vaultAccountId,
-          note
-        ));
+          note,
+        ))
       } catch (error: any) {
         throw new SigningError(
           "SignFailed",
-          `Failed to sign transaction: ${error.message || error}`
-        );
+          `Failed to sign transaction: ${error.message || error}`,
+        )
       }
 
-      logger.info(`Submitting the transaction...`);
-      let submitResult: TxResponse;
+      logger.info(`Submitting the transaction...`)
+      let submitResult: TxResponse
       try {
-        submitResult = await this.client.submitAndWait(tx_blob);
+        submitResult = await this.client.submitAndWait(tx_blob)
       } catch (error: any) {
         throw new SigningError(
           "SubmitFailed",
-          `Failed to submit transaction: ${error.message || error}`
-        );
+          `Failed to submit transaction: ${error.message || error}`,
+        )
       }
 
       if (submitResult.result.validated === false) {
         throw new SigningError(
           "NotValidated",
-          `Transaction was submitted but not validated: ${JSON.stringify(
-            submitResult.result
-          )}`
-        );
+          `Transaction was submitted but not validated: ${JSON.stringify(submitResult.result)}`,
+        )
       }
-      logger.info(
-        `Transaction submitted and validated by the chain. Returning tx data...\n`
-      );
+      logger.info(`Transaction submitted and validated by the chain. Returning tx data...\n`)
 
-      return submitResult;
+      return submitResult
     } catch (error: any) {
       if (error instanceof SigningError) {
-        throw error;
+        throw error
       }
       throw new SigningError(
         "UnknownError",
-        `Unexpected error in signing flow: ${error.message || error}`
-      );
+        `Unexpected error in signing flow: ${error.message || error}`,
+      )
     }
-  };
+  }
 }

@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!doctype html>
 <html class="default" lang="en" data-base="./">
   <head>
     <meta charset="utf-8" />
@@ -16,29 +16,19 @@
   </head>
   <body>
     <script>
-      document.documentElement.dataset.theme =
-        localStorage.getItem("tsd-theme") || "os";
-      document.body.style.display = "none";
+      document.documentElement.dataset.theme = localStorage.getItem("tsd-theme") || "os"
+      document.body.style.display = "none"
       setTimeout(
-        () =>
-          window.app
-            ? app.showPage()
-            : document.body.style.removeProperty("display"),
-        500
-      );
+        () => (window.app ? app.showPage() : document.body.style.removeProperty("display")),
+        500,
+      )
     </script>
     <header class="tsd-page-toolbar">
       <div class="tsd-toolbar-contents container">
         <a href="index.html" class="title">Fireblocks XRP SDK - v1.1.0</a>
         <div id="tsd-toolbar-links"></div>
         <button id="tsd-search-trigger" class="tsd-widget" aria-label="Search">
-          <svg
-            width="16"
-            height="16"
-            viewBox="0 0 16 16"
-            fill="none"
-            aria-hidden="true"
-          >
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
             <use href="assets/icons.svg#icon-search"></use>
           </svg>
         </button>
@@ -65,13 +55,7 @@
           id="tsd-toolbar-menu-trigger"
           data-toggle="menu"
           aria-label="Menu"
-          ><svg
-            width="16"
-            height="16"
-            viewBox="0 0 16 16"
-            fill="none"
-            aria-hidden="true"
-          >
+          ><svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
             <use href="assets/icons.svg#icon-menu"></use></svg
         ></a>
       </div>
@@ -90,8 +74,8 @@
             ></a>
           </h1>
           <p>
-            A stateless SDK and REST API server for Fireblocks customers,
-            simplifying advanced operations on the Ripple Ledger (XRPL).
+            A stateless SDK and REST API server for Fireblocks customers, simplifying advanced
+            operations on the Ripple Ledger (XRPL).
           </p>
           <hr />
           <h2 id="⚡-project-overview" class="tsd-anchor-link">
@@ -104,27 +88,23 @@
             ></a>
           </h2>
           <p>
-            <strong>Fireblocks XRP SDK</strong> enables secure, advanced XRP
-            ledger operations via simple SDK calls or a stateless REST API.<br />
-            Built for Fireblocks customers who want seamless DEX, token, and
-            issuer operations on Ripple.
+            <strong>Fireblocks XRP SDK</strong> enables secure, advanced XRP ledger operations via
+            simple SDK calls or a stateless REST API.<br />
+            Built for Fireblocks customers who want seamless DEX, token, and issuer operations on
+            Ripple.
           </p>
           <blockquote>
             <p>
               <strong>Disclaimer</strong><br />
-              This SDK relies on Fireblocks' RAW signing capabilities. Customers
-              are fully responsible for safe usage, setup, and transaction
-              outcomes. Fireblocks is not liable for any loss of funds resulting
-              from the use of this code. Contact the Fireblocks Professional
-              Services team for assistance.
+              This SDK relies on Fireblocks' RAW signing capabilities. Customers are fully
+              responsible for safe usage, setup, and transaction outcomes. Fireblocks is not liable
+              for any loss of funds resulting from the use of this code. Contact the Fireblocks
+              Professional Services team for assistance.
             </p>
           </blockquote>
           <h3 id="prerequisites" class="tsd-anchor-link">
             <strong>Prerequisites</strong
-            ><a
-              href="#prerequisites"
-              aria-label="Permalink"
-              class="tsd-anchor-icon"
+            ><a href="#prerequisites" aria-label="Permalink" class="tsd-anchor-icon"
               ><svg viewBox="0 0 24 24" aria-hidden="true">
                 <use href="assets/icons.svg#icon-anchor"></use></svg
             ></a>
@@ -137,8 +117,8 @@
               >).
             </li>
             <li>
-              RAW signing is enabled on your Fireblocks workspace. (Contact your
-              Customer Success Manager for more information)
+              RAW signing is enabled on your Fireblocks workspace. (Contact your Customer Success
+              Manager for more information)
             </li>
             <li>TAP rules set to allow RAW transactions.</li>
             <li>Node.js v18+ for SDK usage.</li>
@@ -146,10 +126,7 @@
           </ul>
           <hr />
           <h2 id="🚀-features" class="tsd-anchor-link">
-            🚀 Features<a
-              href="#🚀-features"
-              aria-label="Permalink"
-              class="tsd-anchor-icon"
+            🚀 Features<a href="#🚀-features" aria-label="Permalink" class="tsd-anchor-icon"
               ><svg viewBox="0 0 24 24" aria-hidden="true">
                 <use href="assets/icons.svg#icon-anchor"></use></svg
             ></a>
@@ -157,45 +134,34 @@
           <ul>
             <li>
               <strong>Advanced XRPL support:</strong> DEX (OfferCreate/Cancel,
-              CrossCurrencyPayment), token &amp; XRP transfers, setting trust
-              lines, account settings, clawback, freeze/unfreeze and burn.
+              CrossCurrencyPayment), token &amp; XRP transfers, setting trust lines, account
+              settings, clawback, freeze/unfreeze and burn.
             </li>
             <li>
-              <strong>Fireblocks wallet integration:</strong> Secure MPC key
-              management, raw signing flows, and transaction creation.
+              <strong>Fireblocks wallet integration:</strong> Secure MPC key management, raw signing
+              flows, and transaction creation.
             </li>
             <li>
-              <strong
-                >Raw content validation with callback handler support</strong
-              >
-              Any Raw transaction created by the SDK includes the unhashed
-              payload for further validation actions on your callback handler
-              before signing.
+              <strong>Raw content validation with callback handler support</strong>
+              Any Raw transaction created by the SDK includes the unhashed payload for further
+              validation actions on your callback handler before signing.
             </li>
             <li>
-              <strong>Stateless, pool-managed SDK:</strong> Efficient use of
-              Fireblocks APIs with per-vault pooling.
+              <strong>Stateless, pool-managed SDK:</strong> Efficient use of Fireblocks APIs with
+              per-vault pooling.
             </li>
-            <li>
-              <strong>REST API:</strong> Simple to run as a Docker container.
-            </li>
+            <li><strong>REST API:</strong> Simple to run as a Docker container.</li>
           </ul>
           <hr />
           <h2 id="📦-installation" class="tsd-anchor-link">
-            📦 Installation<a
-              href="#📦-installation"
-              aria-label="Permalink"
-              class="tsd-anchor-icon"
+            📦 Installation<a href="#📦-installation" aria-label="Permalink" class="tsd-anchor-icon"
               ><svg viewBox="0 0 24 24" aria-hidden="true">
                 <use href="assets/icons.svg#icon-anchor"></use></svg
             ></a>
           </h2>
           <h3 id="sdk--library-usage" class="tsd-anchor-link">
             <strong>SDK / Library Usage</strong
-            ><a
-              href="#sdk--library-usage"
-              aria-label="Permalink"
-              class="tsd-anchor-icon"
+            ><a href="#sdk--library-usage" aria-label="Permalink" class="tsd-anchor-icon"
               ><svg viewBox="0 0 24 24" aria-hidden="true">
                 <use href="assets/icons.svg#icon-anchor"></use></svg
             ></a>
@@ -220,8 +186,7 @@
           <ul>
             <li>By default, the API server runs on port <code>3000</code>.</li>
             <li>
-              To change the port, set the <code>PORT</code> variable in your
-              <code>.env</code> file.
+              To change the port, set the <code>PORT</code> variable in your <code>.env</code> file.
             </li>
           </ul>
           <blockquote>
@@ -242,8 +207,8 @@
           </h2>
           <p>All configuration is via environment variables.</p>
           <p>
-            Start by copying <code>.env.example</code> to <code>.env</code> and
-            editing for your environment:
+            Start by copying <code>.env.example</code> to <code>.env</code> and editing for your
+            environment:
           </p>
           <pre><code class="bash"><span class="hl-0">cp</span><span class="hl-1"> </span><span class="hl-2">.env.example</span><span class="hl-1"> </span><span class="hl-2">.env</span>
 </code><button type="button">Copy</button></pre>
@@ -277,18 +242,15 @@
                 <td style="text-align: center">No</td>
                 <td>–</td>
                 <td>
-                  Optional - Can be added to use a single wallet SDK intance,
-                  should be ommited when used as a dockerized server.
+                  Optional - Can be added to use a single wallet SDK intance, should be ommited when
+                  used as a dockerized server.
                 </td>
               </tr>
               <tr>
                 <td><code>FIREBLOCKS_ASSET_ID</code></td>
                 <td style="text-align: center">No</td>
                 <td>XRP_TEST</td>
-                <td>
-                  Use <code>XRP</code> for mainnet, <code>XRP_TEST</code> for
-                  testnet
-                </td>
+                <td>Use <code>XRP</code> for mainnet, <code>XRP_TEST</code> for testnet</td>
               </tr>
               <tr>
                 <td><code>FIREBLOCKS_BASE_PATH</code></td>
@@ -296,10 +258,7 @@
                 <td>US</td>
                 <td>
                   Fireblocks API environment (see
-                  <a
-                    href="https://developers.fireblocks.com/docs/workspace-environments"
-                    >docs</a
-                  >
+                  <a href="https://developers.fireblocks.com/docs/workspace-environments">docs</a>
                   for region URLs)
                 </td>
               </tr>
@@ -318,10 +277,7 @@
             </tbody>
           </table>
           <hr />
-          <h2
-            id="🔑-mounting-your-fireblocks-private-key-in-docker"
-            class="tsd-anchor-link"
-          >
+          <h2 id="🔑-mounting-your-fireblocks-private-key-in-docker" class="tsd-anchor-link">
             🔑 Mounting Your Fireblocks Private Key in Docker<a
               href="#🔑-mounting-your-fireblocks-private-key-in-docker"
               aria-label="Permalink"
@@ -331,24 +287,20 @@
             ></a>
           </h2>
           <p>
-            The SDK and REST API require access to your Fireblocks API private
-            key (FIREBLOCKS_SECRET_KEY) for signing and secure communication
-            with Fireblocks. When running inside Docker, you must mount this
-            file and reference it correctly.
+            The SDK and REST API require access to your Fireblocks API private key
+            (FIREBLOCKS_SECRET_KEY) for signing and secure communication with Fireblocks. When
+            running inside Docker, you must mount this file and reference it correctly.
           </p>
           <ol>
             <li>
-              Store Your Private Key Place your Fireblocks API private key file
-              in the project directory under ./secrets/fireblocks_secret.key:
+              Store Your Private Key Place your Fireblocks API private key file in the project
+              directory under ./secrets/fireblocks_secret.key:
             </li>
           </ol>
           <pre><code class="bash"><span class="hl-0">your-project-root/</span><br/><span class="hl-0">│</span><br/><span class="hl-0">├─</span><span class="hl-1"> </span><span class="hl-2">.env</span><br/><span class="hl-0">├─</span><span class="hl-1"> </span><span class="hl-2">docker-compose.yml</span><br/><span class="hl-0">└─</span><span class="hl-1"> </span><span class="hl-2">...</span>
 </code><button type="button">Copy</button></pre>
 
-          <h4
-            id="important-never-commit-your-env-to-source-control"
-            class="tsd-anchor-link"
-          >
+          <h4 id="important-never-commit-your-env-to-source-control" class="tsd-anchor-link">
             <strong>Important: Never commit your .env to source control.</strong
             ><a
               href="#important-never-commit-your-env-to-source-control"
@@ -360,9 +312,8 @@
           </h4>
           <ol start="2">
             <li>
-              Reference the Private Key in <code>.env</code> Set the environment
-              variable in your <code>.env</code> file to match the path inside
-              the container:
+              Reference the Private Key in <code>.env</code> Set the environment variable in your
+              <code>.env</code> file to match the path inside the container:
             </li>
           </ol>
           <pre><code class="bash"><span class="hl-5">FIREBLOCKS_SECRET_KEY</span><span class="hl-1">=</span><span class="hl-2">&quot;-----BEGIN PRIVATE KEY-----\nMIIEvQIBADANBgkqhkiG9w0BAQEFAASC...\n... more base64 ...\n-----END PRIVATE KEY-----"</span>
@@ -371,8 +322,7 @@
           <ol start="3">
             <li>
               How Docker Compose Mounts the Key Your
-              <code>docker-compose.yml</code> already mounts the .env file into
-              the container:
+              <code>docker-compose.yml</code> already mounts the .env file into the container:
             </li>
           </ol>
           <pre><code class="yaml"><span class="hl-6">services</span><span class="hl-1">:</span><br/><span class="hl-1">  </span><span class="hl-6">fireblocks-xrp-sdk</span><span class="hl-1">:</span><br/><span class="hl-1">    </span><span class="hl-6">build</span><span class="hl-1">:</span><br/><span class="hl-1">      </span><span class="hl-6">context</span><span class="hl-1">: </span><span class="hl-7">.</span><br/><span class="hl-1">      </span><span class="hl-6">dockerfile</span><span class="hl-1">: </span><span class="hl-8">Dockerfile</span><br/><span class="hl-1">    </span><span class="hl-6">volumes</span><span class="hl-1">:</span><br/><span class="hl-1">      - </span><span class="hl-8">./.env:/app/.env:ro</span><br/><span class="hl-1">    </span><span class="hl-6">ports</span><span class="hl-1">:</span><br/><span class="hl-1">      - </span><span class="hl-2">&quot;3000:3000&quot;</span><br/><span class="hl-1">    </span><span class="hl-6">env_file</span><span class="hl-1">: </span><span class="hl-8">./.env</span><br/><span class="hl-1">    </span><span class="hl-6">environment</span><span class="hl-1">:</span><br/><span class="hl-1">      - </span><span class="hl-8">FIREBLOCKS_SECRET_KEY=-----BEGIN PRIVATE KEY-----\nMIIEvQIBADANBgkqhkiG9w0BAQEFAASC...\n... more base64 ...\n-----END PRIVATE KEY-----</span><br/><span class="hl-1">    </span><span class="hl-6">restart</span><span class="hl-1">: </span><span class="hl-8">unless-stopped</span>
@@ -380,12 +330,12 @@
 
           <p>This setup ensures that:</p>
           <p>
-            The <code>.env</code> file with your Fireblocks credentials is
-            available at <code>/app/.env</code>.
+            The <code>.env</code> file with your Fireblocks credentials is available at
+            <code>/app/.env</code>.
           </p>
           <p>
-            The <code>FIREBLOCKS_SECRET_KEY</code> environment variable allows
-            the SDK to use the key to create a Fireblocks instance.
+            The <code>FIREBLOCKS_SECRET_KEY</code> environment variable allows the SDK to use the
+            key to create a Fireblocks instance.
           </p>
           <ol start="4">
             <li>Running the API Server Build and run the container with:</li>
@@ -395,16 +345,13 @@
 
           <ol start="5">
             <li>
-              Security Notes Do not include your private key in the repo. Only
-              give read permissions (:ro) to the mounted secret. Consider using
-              secrets management solutions for production deployments.
+              Security Notes Do not include your private key in the repo. Only give read permissions
+              (:ro) to the mounted secret. Consider using secrets management solutions for
+              production deployments.
             </li>
           </ol>
           <h2 id="🛠️-usage" class="tsd-anchor-link">
-            🛠️ Usage<a
-              href="#🛠️-usage"
-              aria-label="Permalink"
-              class="tsd-anchor-icon"
+            🛠️ Usage<a href="#🛠️-usage" aria-label="Permalink" class="tsd-anchor-icon"
               ><svg viewBox="0 0 24 24" aria-hidden="true">
                 <use href="assets/icons.svg#icon-anchor"></use></svg
             ></a>
@@ -439,12 +386,10 @@
           </h3>
           <p>
             Any transaction created by the SDK (excluding
-            <code>xrpTransfer()</code> that does not rely on Raw signing)
-            includes the unhased transaction payload as an additional
-            <code>extraParameters</code> key (<code>unhashedTxPayload</code>),
-            this is passed to allow pre-signature validation by a callback
-            handler instance connected to your Fireblocks API Co-Signer
-            instance.
+            <code>xrpTransfer()</code> that does not rely on Raw signing) includes the unhased
+            transaction payload as an additional <code>extraParameters</code> key
+            (<code>unhashedTxPayload</code>), this is passed to allow pre-signature validation by a
+            callback handler instance connected to your Fireblocks API Co-Signer instance.
           </p>
           <p>
             In the transaction object received by the callback handler, the
@@ -454,14 +399,11 @@
 </code><button type="button">Copy</button></pre>
 
           <p>
-            Use the <code>unhashedTxPayload</code> parameter to validate the raw
-            message (<code>content</code>) before signing it.
+            Use the <code>unhashedTxPayload</code> parameter to validate the raw message
+            (<code>content</code>) before signing it.
           </p>
           <h3 id="rest-api-usage" class="tsd-anchor-link">
-            REST API Usage<a
-              href="#rest-api-usage"
-              aria-label="Permalink"
-              class="tsd-anchor-icon"
+            REST API Usage<a href="#rest-api-usage" aria-label="Permalink" class="tsd-anchor-icon"
               ><svg viewBox="0 0 24 24" aria-hidden="true">
                 <use href="assets/icons.svg#icon-anchor"></use></svg
             ></a>
@@ -488,9 +430,8 @@
             ></a>
           </h4>
           <p>
-            All requests require valid Fireblocks API credentials via
-            environment parameters. No additional API key/JWT is needed on REST
-            endpoints.
+            All requests require valid Fireblocks API credentials via environment parameters. No
+            additional API key/JWT is needed on REST endpoints.
           </p>
           <h4 id="3-try-endpoints-curl" class="tsd-anchor-link">
             3. Try Endpoints (cURL)<a
@@ -520,10 +461,7 @@
               href="https://github.com/fireblocks/fireblocks-xrp-sdk/blob/main/Fireblocks-XRP-SDK-API.postman_collection.json"
               ><code>Fireblocks-XRP-SDK-API.postman_collection.json</code></a
             >
-            <em
-              >All REST API routes and sample payloads are included for
-              testing.</em
-            >
+            <em>All REST API routes and sample payloads are included for testing.</em>
           </p>
           <h3 id="5-success-response-json-example" class="tsd-anchor-link">
             5. Success Response JSON Example<a
@@ -548,8 +486,8 @@
             ></a>
           </h2>
           <p>
-            The running API server exposes interactive documentation and SDK
-            reference for easier integration and onboarding:
+            The running API server exposes interactive documentation and SDK reference for easier
+            integration and onboarding:
           </p>
           <table>
             <thead>
@@ -568,18 +506,15 @@
               <tr>
                 <td><strong>TypeDoc Reference</strong></td>
                 <td><code>http://localhost:3000/type-docs</code></td>
-                <td>
-                  SDK Classes/Methods documentation (generated by TypeDoc).
-                </td>
+                <td>SDK Classes/Methods documentation (generated by TypeDoc).</td>
               </tr>
             </tbody>
           </table>
           <blockquote>
             <p>
-              Both URLs assume the default port <code>3000</code>—change if you
-              modify your server port. The TypeDoc reference is also available
-              <a href="https://fireblocks.github.io/fireblocks-xrp-sdk/">here</a
-              >.
+              Both URLs assume the default port <code>3000</code>—change if you modify your server
+              port. The TypeDoc reference is also available
+              <a href="https://fireblocks.github.io/fireblocks-xrp-sdk/">here</a>.
             </p>
           </blockquote>
           <p><strong>DEX Routes:</strong></p>
@@ -601,19 +536,11 @@
             <li><code>POST /api/token/xrpTransfer/:vaultAccountId</code></li>
           </ul>
           <p>
-            <strong
-              >Each endpoint expects a JSON body and returns a transaction
-              result.</strong
-            >
-            <em
-              >See Postman or <code>/examples/</code> for detailed payloads.</em
-            >
+            <strong>Each endpoint expects a JSON body and returns a transaction result.</strong>
+            <em>See Postman or <code>/examples/</code> for detailed payloads.</em>
           </p>
           <h3 id="error-handling" class="tsd-anchor-link">
-            Error Handling<a
-              href="#error-handling"
-              aria-label="Permalink"
-              class="tsd-anchor-icon"
+            Error Handling<a href="#error-handling" aria-label="Permalink" class="tsd-anchor-icon"
               ><svg viewBox="0 0 24 24" aria-hidden="true">
                 <use href="assets/icons.svg#icon-anchor"></use></svg
             ></a>
@@ -645,8 +572,7 @@
             </li>
             <li>
               <p>
-                <strong>CI/CD:</strong> The project uses GitHub Actions for
-                lint, build, and tests.
+                <strong>CI/CD:</strong> The project uses GitHub Actions for lint, build, and tests.
               </p>
             </li>
             <li>
@@ -665,20 +591,17 @@
           </h2>
           <blockquote>
             <p>
-              RAW signing is a powerful operation. Ensure your Fireblocks
-              workspace is properly configured.
+              RAW signing is a powerful operation. Ensure your Fireblocks workspace is properly
+              configured.
               <strong
-                >Fireblocks is not responsible for loss of funds caused by
-                incorrect use of this SDK or API.</strong
+                >Fireblocks is not responsible for loss of funds caused by incorrect use of this SDK
+                or API.</strong
               >
             </p>
           </blockquote>
           <hr />
           <h2 id="📝-license" class="tsd-anchor-link">
-            📝 License<a
-              href="#📝-license"
-              aria-label="Permalink"
-              class="tsd-anchor-icon"
+            📝 License<a href="#📝-license" aria-label="Permalink" class="tsd-anchor-icon"
               ><svg viewBox="0 0 24 24" aria-hidden="true">
                 <use href="assets/icons.svg#icon-anchor"></use></svg
             ></a>
@@ -686,17 +609,14 @@
           <p>MIT License</p>
           <hr />
           <h2 id="💬-support" class="tsd-anchor-link">
-            💬 Support<a
-              href="#💬-support"
-              aria-label="Permalink"
-              class="tsd-anchor-icon"
+            💬 Support<a href="#💬-support" aria-label="Permalink" class="tsd-anchor-icon"
               ><svg viewBox="0 0 24 24" aria-hidden="true">
                 <use href="assets/icons.svg#icon-anchor"></use></svg
             ></a>
           </h2>
           <p>
-            For setup help, troubleshooting, or feature requests, please contact
-            the Fireblocks Professional Services team.
+            For setup help, troubleshooting, or feature requests, please contact the Fireblocks
+            Professional Services team.
           </p>
           <hr />
         </div>
@@ -706,13 +626,7 @@
           <div class="tsd-navigation settings">
             <details class="tsd-accordion">
               <summary class="tsd-accordion-summary">
-                <svg
-                  width="20"
-                  height="20"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  aria-hidden="true"
-                >
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
                   <use href="assets/icons.svg#icon-chevronDown"></use>
                 </svg>
                 <h3>Settings</h3>
@@ -723,11 +637,7 @@
                   <ul id="tsd-filter-options">
                     <li class="tsd-filter-item">
                       <label class="tsd-filter-input"
-                        ><input
-                          type="checkbox"
-                          id="tsd-filter-protected"
-                          name="protected"
-                        /><svg
+                        ><input type="checkbox" id="tsd-filter-protected" name="protected" /><svg
                           width="32"
                           height="32"
                           viewBox="0 0 32 32"
@@ -760,12 +670,7 @@
                           id="tsd-filter-inherited"
                           name="inherited"
                           checked
-                        /><svg
-                          width="32"
-                          height="32"
-                          viewBox="0 0 32 32"
-                          aria-hidden="true"
-                        >
+                        /><svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true">
                           <rect
                             class="tsd-checkbox-background"
                             width="30"
@@ -788,11 +693,7 @@
                     </li>
                     <li class="tsd-filter-item">
                       <label class="tsd-filter-input"
-                        ><input
-                          type="checkbox"
-                          id="tsd-filter-external"
-                          name="external"
-                        /><svg
+                        ><input type="checkbox" id="tsd-filter-external" name="external" /><svg
                           width="32"
                           height="32"
                           viewBox="0 0 32 32"
@@ -833,13 +734,7 @@
           </div>
           <details open class="tsd-accordion tsd-page-navigation">
             <summary class="tsd-accordion-summary">
-              <svg
-                width="20"
-                height="20"
-                viewBox="0 0 24 24"
-                fill="none"
-                aria-hidden="true"
-              >
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
                 <use href="assets/icons.svg#icon-chevronDown"></use>
               </svg>
               <h3>On This Page</h3>
@@ -893,8 +788,8 @@
                 <li>
                   <a href="#🔑-mounting-your-fireblocks-private-key-in-docker"
                     ><span
-                      >🔑 <wbr />Mounting <wbr />Your <wbr />Fireblocks
-                      <wbr />Private <wbr />Key in <wbr />Docker</span
+                      >🔑 <wbr />Mounting <wbr />Your <wbr />Fireblocks <wbr />Private <wbr />Key in
+                      <wbr />Docker</span
                     ></a
                   >
                 </li>
@@ -903,11 +798,10 @@
                     <li>
                       <ul>
                         <li>
-                          <a
-                            href="#important-never-commit-your-private-key-to-source-control"
+                          <a href="#important-never-commit-your-private-key-to-source-control"
                             ><span
-                              >Important: <wbr />Never commit your private key
-                              to source control.</span
+                              >Important: <wbr />Never commit your private key to source
+                              control.</span
                             ></a
                           >
                         </li>
@@ -941,9 +835,7 @@
                       <ul>
                         <li>
                           <a href="#1-run-api-server"
-                            ><span
-                              >1. <wbr />Run <wbr />API <wbr />Server</span
-                            ></a
+                            ><span>1. <wbr />Run <wbr />API <wbr />Server</span></a
                           >
                         </li>
                         <li>
@@ -953,9 +845,7 @@
                         </li>
                         <li>
                           <a href="#3-try-endpoints-curl"
-                            ><span
-                              >3. <wbr />Try <wbr />Endpoints (c<wbr />URL)</span
-                            ></a
+                            ><span>3. <wbr />Try <wbr />Endpoints (c<wbr />URL)</span></a
                           >
                         </li>
                         <li>
@@ -968,8 +858,7 @@
                     <li>
                       <a href="#5-success-response-json-example"
                         ><span
-                          >5. <wbr />Success <wbr />Response <wbr />JSON
-                          <wbr />Example</span
+                          >5. <wbr />Success <wbr />Response <wbr />JSON <wbr />Example</span
                         ></a
                       >
                     </li>
@@ -977,10 +866,7 @@
                 </li>
                 <li>
                   <a href="#📚-api--documentation-endpoints"
-                    ><span
-                      >📚 <wbr />API &amp; <wbr />Documentation
-                      <wbr />Endpoints</span
-                    ></a
+                    ><span>📚 <wbr />API &amp; <wbr />Documentation <wbr />Endpoints</span></a
                   >
                 </li>
                 <li>
@@ -994,16 +880,12 @@
                 </li>
                 <li>
                   <a href="#🧪-development--contribution"
-                    ><span
-                      >🧪 <wbr />Development &amp; <wbr />Contribution</span
-                    ></a
+                    ><span>🧪 <wbr />Development &amp; <wbr />Contribution</span></a
                   >
                 </li>
                 <li>
                   <a href="#🛡️-security--responsibility"
-                    ><span
-                      >🛡️ <wbr />Security &amp; <wbr />Responsibility</span
-                    ></a
+                    ><span>🛡️ <wbr />Security &amp; <wbr />Responsibility</span></a
                   >
                 </li>
                 <li>
