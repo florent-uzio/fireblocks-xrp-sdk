@@ -7,7 +7,7 @@ import { requireBody, validateVaultAccount } from "../middleware.js"
 const logger = new Logger("token-routes")
 
 export const configureTokenRoutes = (api: FbksXrpApiService): Router => {
-  const router = Router()
+  const router: Router = Router()
 
   const tokenRoutes = [
     { path: "tokenTransfer", handler: controllers.tokenTransfer },
