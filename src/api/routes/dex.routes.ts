@@ -7,7 +7,7 @@ import { requireBody, validateVaultAccount } from "../middleware.js"
 const logger = new Logger("dex-routes")
 
 export const configureDexRoutes = (api: FbksXrpApiService): Router => {
-  const router = Router()
+  const router: Router = Router()
 
   const dexRoutes = [
     { path: "offerCreate", handler: controllers.offerCreate },

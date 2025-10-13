@@ -1,6 +1,6 @@
 // src/api/routes/swagger.routes.ts
 import { type Request, type Response, Router } from "express"
-const router = Router()
+const router: Router = Router()
 
 // ---------- DEX Endpoints ----------
 
